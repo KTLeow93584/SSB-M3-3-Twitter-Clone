@@ -11,12 +11,11 @@ import Image from 'react-bootstrap/Image';
 import Nav from 'react-bootstrap/Nav';
 import Spinner from 'react-bootstrap/Spinner';
 
-import { getSessionToken } from '../apis/authApi.jsx';
-
 import ProfilePostCard from './ProfilePostCard.jsx';
 import ModifyPostModal from './ModifyPostModal.jsx';
 import DeletePostModal from './DeletePostModal.jsx';
 
+import { getSessionToken } from '../apis/authApi.jsx';
 import { months } from '../data/time.js';
 import { fetchPostsByUser } from '../feature/posts/postsSlice.jsx';
 
@@ -48,54 +47,42 @@ export default function ProfileMidBody() {
         navigate("/edit");
     };
 
-    const dispatch = useDispatch();
-
     const activeUserObj = useSelector((state) => state.activeUser);
     const activeUser = activeUserObj.user;
 
     const posts = useSelector((state) => state.posts.posts);
-    const loading = useSelector((state) => state.posts.loading);
+    const dispatch = useDispatch();
+    // ===========================================
+    const [postLoaderVisibility, setPostLoaderVisibility] = useState(false);
 
+    useEffect(() => {
+        setPostLoaderVisibility(true)
+
+        dispatch(fetchPostsByUser()).then(
+            (action) => {
+                setPostLoaderVisibility(false);
+
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[Fetch User Posts Failed] Payload.", action.payload);
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[Fetch User Posts Succeeded] Payload.", action.payload);
+                }
+            }
+        );
+    }, [dispatch]);
+    // ===========================================
     const sessionToken = getSessionToken();
     const decodedToken = jwtDecode(sessionToken);
     const userId = decodedToken.id;
-
-    useEffect(() => {
-        dispatch(fetchPostsByUser());
-    }, [dispatch]);
-
-    /*
-    const onBrowseUsersCallback = () => {
-        callServerAPI("users/1", "GET", null,
-            // On Successful Callback
-            (result) => {
-                // Debug
-                //console.log("[Users Query] Results.", result);
-
-                const users = result.map((user) => ({
-                    id: user.id,
-                    firstName: user.first_name,
-                    lastName: user.last_name,
-                    profileImage: user.profile_image,
-                    followed: user.followed,
-                    totalFollowers: user.total_followers
-                }));
-                navigate("/users", {
-                    state: { users: users }
-                });
-            },
-            // On Failed Callback
-            (error) => {
-                // Debug
-                console.log("Error.", error);
-            }
-        );
-    };
-    */
-
+    // ===========================================
     return (
         <>
-            <Col className="col-md-5 col-lg-6 bg-light m-0 p-0" style={{ border: "1px solid lightgrey" }}>
+            <Col className="col-md-5 col-9 bg-light m-0 p-0 bg-secondary" style={{ border: "1px solid lightgrey", minHeight: "100vh" }}>
                 {
                     activeUser.banner_image ?
                         (<Image src={activeUser.banner_image} className="banner-img" />) :
@@ -122,7 +109,7 @@ export default function ProfileMidBody() {
                     </p>
 
                     <p style={{ marginBottom: "2px" }}>
-                        @{activeUser.first_name + activeUser.last_name}
+                        @{(activeUser.first_name + activeUser.last_name).replace(" ", "")}
                     </p>
 
                     <div className="mt-3 mb-2">
@@ -154,17 +141,27 @@ export default function ProfileMidBody() {
                     </Nav.Item>
                 </Nav>
                 {
-                    loading && (
-                        <Spinner animation="border" className="ms-3 mt-3" variant="primary" />
+                    postLoaderVisibility && (
+                        <div className="d-flex justify-content-center mt-5">
+                            <Spinner animation="border" variant="primary" />
+                        </div>
                     )
                 }
                 {
-                    posts.length > 0 ? posts.map((post) => (
-                        <ProfilePostCard
-                            key={post.id} post={post} userId={userId}
-                            onModifyPostCallback={onModifyPost}
-                            onDeletePostCallback={onDeletePost} />
-                    )) : null
+                    postLoaderVisibility ? null : (
+                        posts.length > 0 ? posts.map((post) => (
+                            <ProfilePostCard
+                                key={post.id} post={post} userId={userId}
+                                onModifyPostCallback={onModifyPost}
+                                onDeletePostCallback={onDeletePost} />
+                        )) : (
+                            <div className="d-flex justify-content-center mt-5">
+                                <p className="m-0 p-0 text-center fw-bold" style={{ fontSize: "0.9em" }}>
+                                    Kickstart your journey via clicking on the &quot;Tweet&quot; button and share with us how was your day!
+                                    </p>
+                            </div>
+                        )
+                    )
                 }
             </Col>
             <ModifyPostModal show={showModify} post={targetPost} onCloseModalCallback={onCloseModifyModalCallback} />

@@ -7,8 +7,12 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
 import { updatePost } from '../feature/posts/postsSlice.jsx';
+
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
+    // =====================
+    const [error, setError] = useState(null);
     // =====================
     const [postContent, setPostContent] = useState(post ? post.content : "");
     useEffect(() => {
@@ -18,14 +22,34 @@ export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
     const dispatch = useDispatch();
 
     const onModifyExistingPost = () => {
-        dispatch(updatePost({ id: post.id, content: postContent })).then(
-            // On Promise Fulfilled
-            () => {
-                if (onCloseModalCallback)
-                    onCloseModalCallback();
-            },
-            // On Promise Rejected/Failed
-            null
+        onLoadingStart("Global");
+        setError(null);
+
+        dispatch(updatePost({ post_id: post.id, post_content: postContent })).then(
+            (action) => {
+                onLoadingEnd("Global");
+
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[On Post Modification Failed] Payload.", action.payload);
+
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[On Post Modification Successful] Payload.", action.payload);
+
+                    setPostContent("");
+
+                    if (onCloseModalCallback)
+                        onCloseModalCallback();
+                }
+            }
         );
     };
     // =====================
@@ -46,6 +70,14 @@ export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
                                 onChange={(event) => setPostContent(event.target.value)} />
                         </Form.Group>
                     </Form>
+                    {/* Error Message Highlight */}
+                    {
+                        error ? (
+                            <p className="fs-6 text-danger">
+                                Something went wrong with the post modification process. (Error: {error.name}, Code: {error.code})
+                            </p>
+                        ) : null
+                    }
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" className="rounded-pill" onClick={onModifyExistingPost}>

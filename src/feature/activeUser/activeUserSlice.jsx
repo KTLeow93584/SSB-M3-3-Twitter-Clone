@@ -5,59 +5,94 @@ import { callServerAPI, updateSessionToken } from '../../apis/authApi.jsx';
 // Async thunk for login.
 export const login = createAsyncThunk(
     "login",
-    async (credentials) => {
+    async (params, api) => {
         const data = {
-            email: credentials.email,
-            password: credentials.password
+            email: params.email,
+            password: params.password
         };
 
-        return callServerAPI("login", "POST", data);
+        const result = await callServerAPI("login", "POST", data);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
     }
 );
 
 // Async thunk for logout.
 export const logout = createAsyncThunk(
     "logout",
-    async () => {
-        return callServerAPI("logout", "POST", null);
+    async (params, api) => {
+        const result = await callServerAPI("logout", "POST", null);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
     }
 );
 
 // Async thunk for registration.
 export const register = createAsyncThunk(
     "register",
-    async (credentials) => {
+    async (params, api) => {
         // Prepare data to be sent to API.
         const data = {
-            email: credentials.email,
-            password: credentials.password,
-            first_name: credentials.first_name,
-            last_name: credentials.last_name,
-            profile_image: credentials.profile_image
+            email: params.email,
+            password: params.password,
+            first_name: params.first_name,
+            last_name: params.last_name,
+            profile_image: params.profile_image
         };
-        return callServerAPI("register", "POST", data);
+        const result = await callServerAPI("register", "POST", data);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
     }
 );
 
 // Async thunk for acquiring user info.
 export const getUserInfo = createAsyncThunk(
     "user/get",
-    async () => {
-        return callServerAPI("profile", "GET", null);
+    async (params, api) => {
+        const result = await callServerAPI("profile", "GET", null);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
     }
 );
 
 // Async thunk for updating user info.
 export const updateUserInfo = createAsyncThunk(
     "user/update",
-    async (userInfo) => {
+    async (params, api) => {
         // Prepare data to be sent to API.
         const data = {
-            first_name: userInfo.first_name,
-            last_name: userInfo.last_name,
-            profile_image: userInfo.profile_image
+            first_name: params.first_name,
+            last_name: params.last_name,
+            profile_image: params.profile_image
         };
-        return callServerAPI("profile", "PUT", data);
+        const result = await callServerAPI("profile", "PUT", data);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
     }
 );
 
@@ -68,7 +103,22 @@ const activeUserSlice = createSlice({
         user: null,
         token: null
     },
-    reducers: {},
+    reducers: {
+        updateFollowingCount: (state, action) => {
+            return {
+                user: {
+                    first_name: state.user.first_name,
+                    last_name: state.user.last_name,
+                    profile_image: state.user.profile_image,
+                    follower_count: state.user.follower_count,
+                    following_count: action.payload.isAdd ? (state.user.following_count + 1) : (state.user.following_count - 1),
+                    joined_at_month: state.user.joined_at_month,
+                    joined_at_year: state.user.joined_at_year
+                },
+                token: state.token
+            };
+        }
+    },
     extraReducers: (builder) => {
         // Fetch Posts By User
         builder.addCase(login.fulfilled, (state, action) => {
@@ -79,9 +129,11 @@ const activeUserSlice = createSlice({
 
             return {
                 user: null,
-                token: action.payload.clientData.token,
+                token: action.payload.clientData.token
             };
-        }).addCase(logout.fulfilled, (state, action) => {
+        });
+
+        builder.addCase(logout.fulfilled, () => {
             // Debug
             //console.log("[On Logout] Payload.", action.payload);
 
@@ -89,7 +141,9 @@ const activeUserSlice = createSlice({
                 user: null,
                 token: null
             };
-        }).addCase(getUserInfo.fulfilled, (state, action) => {
+        });
+
+        builder.addCase(getUserInfo.fulfilled, (state, action) => {
             // Debug
             console.log("[On Acquire User Profile] Payload.", action.payload);
 
@@ -105,7 +159,9 @@ const activeUserSlice = createSlice({
                 },
                 token: state.token
             };
-        }).addCase(updateUserInfo.fulfilled, (state, action) => {
+        });
+
+        builder.addCase(updateUserInfo.fulfilled, (state, action) => {
             // Debug
             //console.log("[On Update User Profile] Payload.", action.payload);
 
@@ -121,8 +177,9 @@ const activeUserSlice = createSlice({
                 },
                 token: state.token
             };
-        })
+        });
     }
 });
 
+export const { updateFollowingCount } = activeUserSlice.actions;
 export default activeUserSlice.reducer;

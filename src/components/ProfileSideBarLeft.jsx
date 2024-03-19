@@ -6,9 +6,9 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 
 import NewPostModal from './NewPostModal.jsx';
-import IconButton from '../components/IconButton.jsx';
+import IconButton from './IconButton.jsx';
 // =========================================
-export default function ProfileSideBar({ onLogoutCallback }) {
+export default function ProfileSideBarLeft({ onLogoutCallback }) {
     const [show, setShow] = useState(false);
 
     const onCloseModalCallback = () => setShow(false);
@@ -19,9 +19,9 @@ export default function ProfileSideBar({ onLogoutCallback }) {
     const onMoveToProfileCallback = () => {
         navigate("/profile");
     };
-    
+
     return (
-        <Col className="col-md-4 col-lg-3 d-flex flex-column justify-content-start align-items-start bg-light vh-100"
+        <Col className="col-md-3 col-lg-3 col-3 d-flex flex-column justify-content-start align-items-start"
             style={{ position: "sticky", top: 0 }}>
             <IconButton className="bi bi-twitter" isTop />
             <IconButton className="bi bi-house" text="Home" />

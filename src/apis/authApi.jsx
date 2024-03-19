@@ -1,6 +1,5 @@
 // ====================================================================
 import axios from "axios";
-
 const url = "https://ca9aecee-4d16-4734-9572-bda971ac7cfc-00-2x0vw49owtfq6.picard.replit.dev/";
 // ====================================================================
 let sessionToken = null;
@@ -14,16 +13,6 @@ export function getSessionToken() {
     return sessionToken;
 }
 // ====================================================================
-function onAPIStart() {
-    const apiEvent = new CustomEvent("On Loading Start");
-    window.dispatchEvent(apiEvent);
-}
-
-function onAPIEnd() {
-    const apiEvent = new CustomEvent("On Loading End");
-    window.dispatchEvent(apiEvent);
-}
-// ====================================================================
 /**
  * @param string        subURL                     The API's name. (E.g. login, logout, register).
  * @param string        method                     Request Type (GET, POST, PUT, PATCH, DELETE).
@@ -33,9 +22,6 @@ function onAPIEnd() {
  */
 export async function callServerAPI(subURL, method = "GET", body = {},
     onSuccessfulCallback = null, onFailedCallback = null) {
-    // Start Loader class at the beginning of an API.
-    //onAPIStart();
-
     const fullURL = url + subURL;
 
     // Debug
@@ -89,15 +75,13 @@ export async function callServerAPI(subURL, method = "GET", body = {},
         }
 
         return data;
-
-        // End Loader class at the end of an API.
-        //onAPIEnd();
     }
     catch (error) {
         // Debug
-        // console.log("[On API Request Failed] Yielded an error.", error);
+        console.log("[On API Request Failed] Error.", error);
 
         // End Loader class at the end of an API.
+        //onAPIEnd();
 
         if (onFailedCallback)
             onFailedCallback({
@@ -106,8 +90,6 @@ export async function callServerAPI(subURL, method = "GET", body = {},
                 message: error && error.data && error.data.message ? error.data.message : "N/A"
             });
 
-        //onAPIEnd();
-        
         return error;
     }
 

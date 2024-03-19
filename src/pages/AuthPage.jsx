@@ -12,7 +12,8 @@ import Image from 'react-bootstrap/Image';
 import Modal from 'react-bootstrap/Modal';
 
 import { login, register, getUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
-import { callServerAPI } from '../apis/authApi.jsx';
+
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function AuthPage() {
     const loginImage = "https://sig1.co/img-twitter-1";
@@ -21,10 +22,17 @@ export default function AuthPage() {
 
     // Possible values: null (no modals to show), "Login", "Sign Up".
     const [modalShow, setModalShow] = useState(null);
-    const onShowRegistrationModal = () => setModalShow("Register");
-    const onShowLoginModal = () => setModalShow("Login");
+    const onShowRegistrationModal = () => {
+        setActionCompletedMessage("");
+        setModalShow("Register");
+    };
+    const onShowLoginModal = () => {
+        setActionCompletedMessage("");
+        setModalShow("Login");
+    };
 
     const [error, setError] = useState(null);
+    const [actionCompletedMessage, setActionCompletedMessage] = useState("");
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -77,52 +85,69 @@ export default function AuthPage() {
 
     const onRegister = async (event) => {
         event.preventDefault();
+        onLoadingStart("Global");
 
         // Debug
         //console.log("Sign Up Event");
         dispatch(register({ email, password, first_name: firstName, last_name: lastName })).then(
-            // On Promise Fulfilled
-            () => {
-                // Debug
-                console.log("[On Registration Successful]");
+            (action) => {
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[On Registration Failed] Payload.", action.payload);
 
-                setError(null);
-                setModalShow(null);
-                alert("Successfully Registered!");
-            },
-            // On Promise Rejected/Failed
-            (error) => {
-                setError({
-                    name: error.code,
-                    code: error.request.status
-                });
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                    onLoadingEnd("Global");
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[On Registration Successful] Payload.", action.payload);
+
+                    onLoadingEnd("Global");
+                    setError(null);
+                    setModalShow(null);
+                    setActionCompletedMessage("Successfully Registered. You can now log in!");
+                }
             }
         );
     }
 
     const onLogin = async (event) => {
         event.preventDefault();
+        onLoadingStart("Global");
 
         // Debug
         //console.log("Login Event");
+        const apiEvent = new CustomEvent("On Loading Start");
+        window.dispatchEvent(apiEvent);
 
         dispatch(login({ email, password })).then(
-            // On Promise Fulfilled
-            () => {
-                // Debug
-                console.log("Login was successful, token saved");
+            (action) => {
+                const apiEvent = new CustomEvent("On Loading End");
+                window.dispatchEvent(apiEvent);
 
-                onFetchUserProfileInfo();
-            },
-            // On Promise Rejected/Failed
-            (error) => {
-                // Debug
-                console.log("Login Failed.", error);
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[Login Failed] Payload.", action.payload)
+                    
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                    onLoadingEnd("Global");
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    console.log("[Login Successful] Payload.", action.payload);
 
-                setError({
-                    name: error.code,
-                    code: error.request.status
-                });
+                    onFetchUserProfileInfo();
+                }
             }
         );
     }
@@ -132,20 +157,26 @@ export default function AuthPage() {
         //console.log("Get User Profile Event");
 
         dispatch(getUserInfo()).then(
-            // On Promise Fulfilled
-            () => {
-                // Debug
-                //console.log("User Profile Obtained.");
+            (action) => {
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[User Info Failed] Payload.", action.payload);
 
-                navigate("/profile");
-            },
-            // On Promise Rejected/Failed
-            (error) => {
-                console.log("Error.", error);
-                setError({
-                    name: error.code,
-                    code: error.request.status
-                });
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                }
+                // On Promise Fulfilled
+                else {
+                    onLoadingEnd("Global");
+
+                    // Debug
+                    console.log("[User Info Succeeded] Payload.", action.payload);
+
+                    navigate("/profile");
+                }
             }
         );
     };
@@ -153,6 +184,7 @@ export default function AuthPage() {
     const onCloseModal = () => {
         setModalShow(null);
         setPasswordComplexityLevel(0);
+        setError(null);
     };
 
     return (
@@ -179,11 +211,18 @@ export default function AuthPage() {
                     <Button className="rounded-pill" onClick={onShowRegistrationModal}>
                         Create an account
                     </Button>
-                    <p style={{ fontSize: "12px" }}>
+                    <p style={{ fontSize: "0.7em" }}>
                         By signing up, you agree to the Terms of Services and Privacy Policy including Cookie Use.
                     </p>
+                    {
+                        actionCompletedMessage ? (
+                            <div className="rounded" style={{ border: "2px #777777 solid", backgroundColor: "#bbbbbb" }}>
+                                <p className="fw-bold text-center m-0 py-2 px-3" style={{ fontSize: "0.8em" }}>{actionCompletedMessage}</p>
+                            </div>
+                        ) : null
+                    }
 
-                    <p className="mt-5" style={{ fontWeight: "bold" }}>
+                    <p className="mt-2" style={{ fontWeight: "bold" }}>
                         Already have an account?
                     </p>
                     <Button
@@ -277,6 +316,7 @@ export default function AuthPage() {
                         <Button className="rounded-pill" type="submit">
                             {modalShow === "Register" ? "Register" : "Log in"}
                         </Button>
+                        {/* Error Message Highlight */}
                         {
                             error ? (
                                 <p className="fs-6 text-danger">

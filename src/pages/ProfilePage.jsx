@@ -3,30 +3,47 @@ import { useDispatch } from 'react-redux';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
-import ProfileSideBar from '../components/ProfileSideBar.jsx';
+import ProfileSideBarLeft from '../components/ProfileSideBarLeft.jsx';
 import ProfileMidBody from '../components/ProfileMidBody.jsx';
+import ProfileSideBarRight from '../components/ProfileSideBarRight.jsx';
 
 import { updateSessionToken } from '../apis/authApi.jsx';
 import { logout } from '../feature/activeUser/activeUserSlice.jsx';
+
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function ProfilePage() {
     const dispatch = useDispatch();
 
     const onLogoutCallback = () => {
+        onLoadingStart("Global");
+
         dispatch(logout()).then(
-            // On Promise Fulfilled, clear the token from the local storage.
-            () => updateSessionToken(""),
-            // On Promise Rejected/Failed
-            null
+            (action) => {
+                onLoadingEnd("Global");
+
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[On Logout Failed] Payload.", action.payload);
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[On Logout Successful] Payload.", action.payload);
+                    updateSessionToken("");
+                }
+            }
         );
     };
 
     return (
         <>
-            <Container fluid>
+            <Container fluid className="bg-light" style={{ flex: 1 }}>
                 <Row className="d-flex justify-content-center">
-                    <ProfileSideBar onLogoutCallback={onLogoutCallback} />
+                    <ProfileSideBarLeft onLogoutCallback={onLogoutCallback} />
                     <ProfileMidBody />
+                    <ProfileSideBarRight />
                 </Row>
             </Container>
         </>

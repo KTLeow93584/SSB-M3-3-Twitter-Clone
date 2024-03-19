@@ -2,6 +2,8 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
 import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom';
 
+import Container from 'react-bootstrap/Container';
+
 import Loader from './components/Loader.jsx';
 
 import GuestAuth from './auths/GuestAuth.jsx';
@@ -27,13 +29,17 @@ export function Layout() {
 // =========================================
 function App() {
   return (
-    <>
+    <Container fluid className="main-container m-0 p-0">
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route index element={<AuthPage />} />
+                <Route index element={
+                  <GuestAuth>
+                    <AuthPage />
+                  </GuestAuth>
+                } />
 
                 <Route element={
                   <GuestAuth>
@@ -71,7 +77,7 @@ function App() {
           </BrowserRouter>
         </PersistGate>
       </Provider>
-    </>
+    </Container>
   );
 }
 

@@ -6,9 +6,9 @@ export default function IconButton({ isTop, className, onClick, text }) {
     const iconMargin = text ? " me-3" : " ";
 
     return (
-        <Button variant={margin} onClick={onClick}>
+        <Button variant={margin} className="d-flex align-items-center" onClick={onClick}>
             <i className={className + iconMargin} style={{ fontSize: "24px", color: isTop ? "dodgerblue" : "black" }}></i>
-            {text}
-        </Button>
+            < span className="d-md-block d-none" > {text}</span >
+        </Button >
     );
 }

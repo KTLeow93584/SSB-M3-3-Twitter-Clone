@@ -13,10 +13,10 @@ import defaultProfileImage from '../assets/images/user-profile-default.webp';
 // =========================================
 export default function ProfilePostCard({ post, userId, onModifyPostCallback = null, onDeletePostCallback = null }) {
     const dispatch = useDispatch();
-    const onClickLikeButton = () => dispatch(post.liked === "False" ? likeAPost(post.id) : unlikeAPost(post.id));
+    const onClickLikeButton = () => dispatch(post.liked === "False" ? likeAPost({ post_id: post.id }) : unlikeAPost({ post_id: post.id }));
 
     return (
-        <Row className="p-3" style={{ borderTop: "1px solid #d3d3d3", borderBottom: "1px solid #d3d3d3" }}>
+        <Row className="mx-0 mt-3" style={{ borderBottom: "2px solid #d3d3d3" }}>
             <Col className="col-2">
                 <Image src={post.profile_image ? post.profile_image : defaultProfileImage}
                     roundedCircle
@@ -29,9 +29,9 @@ export default function ProfilePostCard({ post, userId, onModifyPostCallback = n
 
             <Col>
                 <div className="d-flex align-items-start justify-content-between">
-                    <div>
-                        <strong>{post.first_name + " " + post.last_name}</strong>
-                        <p className="mt-0 mb-2 py-0" style={{ color: "#777777" }}>@{post.first_name + post.last_name}</p>
+                    <div className="d-flex align-items-center">
+                        <strong className="me-1">{post.first_name + " " + post.last_name}</strong>
+                        <p className="m-0 p-0" style={{ fontSize: "0.8em", color: "#777777" }}>@{(post.first_name + post.last_name).replace(" ", "")} • {"Insert Date Here"}</p>
                     </div>
                     {
                         post.user_id === userId ? (
@@ -71,7 +71,7 @@ export default function ProfilePostCard({ post, userId, onModifyPostCallback = n
                     </Button>
                 </div>
             </Col>
-        </Row >
+        </Row>
     )
 }
 // =========================================

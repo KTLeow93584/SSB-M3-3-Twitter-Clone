@@ -7,20 +7,46 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
 import { createANewPost } from '../feature/posts/postsSlice.jsx';
+
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function NewPostModal({ show, onCloseModalCallback }) {
+    // =====================
+    const [error, setError] = useState(null);
+    // =====================
     const [postContent, setPostContent] = useState("");
+    // =====================
     const dispatch = useDispatch();
 
     const onSaveNewPost = () => {
-        dispatch(createANewPost(postContent)).then(
-            // On Promise Fulfilled
-            () => {
-                if (onCloseModalCallback)
-                    onCloseModalCallback();
-            },
-            // On Promise Rejected/Failed
-            null
+        onLoadingStart("Global");
+        setError(null);
+
+        dispatch(createANewPost({ post_content: postContent })).then(
+            (action) => {
+                onLoadingEnd("Global");
+
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[On Post Creation Failed] Payload.", action.payload);
+
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[On Post Creation Successful] Payload.", action.payload);
+
+                    setPostContent("");
+                    
+                    if (onCloseModalCallback)
+                        onCloseModalCallback();
+                }
+            }
         );
     };
 
@@ -41,8 +67,16 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                                 onChange={(event) => setPostContent(event.target.value)} />
                         </Form.Group>
                     </Form>
+                    {/* Error Message Highlight */}
+                    {
+                        error ? (
+                            <p className="fs-6 text-danger mt-3 mb-0 mx-0 p-0">
+                                Something went wrong with the post creation process. (Error: {error.name}, Code: {error.code})
+                            </p>
+                        ) : null
+                    }
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer className="d-flex flex-column align-items-center">
                     <Button variant="primary" className="rounded-pill" onClick={onSaveNewPost}>
                         Tweet
                     </Button>
