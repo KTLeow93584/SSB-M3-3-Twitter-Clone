@@ -13,14 +13,17 @@ import {
 import storage from 'redux-persist/lib/storage'
 
 import activeUserReducer from './feature/activeUser/activeUserSlice.jsx';
+import postsReducer from './feature/posts/postsSlice.jsx';
 
 const reducers = combineReducers({
-    activeUser: activeUserReducer
+    activeUser: activeUserReducer,
+    posts: postsReducer
 });
 
 const persistConfig = {
     key: "root",
     storage,
+    blacklist: ["posts"],
     whitelist: ["activeUser"]
 };
 

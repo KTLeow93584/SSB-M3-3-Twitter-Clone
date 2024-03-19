@@ -12,7 +12,7 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 
 import { callServerAPI } from '../apis/authApi.jsx';
-import { updateUserProfileData } from '../feature/activeUser/activeUserSlice.jsx';
+import { updateUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
 import NavigationPanel from '../components/NavigationPanel.jsx';
 // ==============================================
 export default function EditProfile() {
@@ -22,11 +22,14 @@ export default function EditProfile() {
 
     let activeUserObj = useSelector((state) => state.activeUser);
     const user = activeUserObj.user;
-    // ===================================================
-    const [firstName, setFirstName] = useState(user.firstName);
-    const [lastName, setLastName] = useState(user.lastName);
 
-    const [image, setImage] = useState(user.image ? user.image : null);
+    // Debug
+    //console.log("[Edit Profile] User.", user);
+    // ===================================================
+    const [firstName, setFirstName] = useState(user.first_name);
+    const [lastName, setLastName] = useState(user.last_name);
+
+    const [image, setImage] = useState(user.profile_image ? user.profile_image : null);
     const [isCorrectImageFormat, setIsCorrectImageFormat] = useState(true);
 
     const updateProfilePicture = (event) => {
@@ -65,22 +68,15 @@ export default function EditProfile() {
     const onUpdateUserProfile = (event) => {
         event.preventDefault();
 
-        const updatedUserData = {
-            first_name: firstName,
-            last_name: lastName,
-            profile_image: image
-        }
-
-        callServerAPI("profile", "POST", updatedUserData,
-            // On Successful Callback
+        dispatch(updateUserInfo({ first_name: firstName, last_name: lastName, profile_image: image })).then(
+            // On Promise Fulfilled
             () => {
                 // Debug
                 //console.log("Successfully Updated User Profile.");
 
-                dispatch(updateUserProfileData(updatedUserData));
                 navigate("/profile");
             },
-            // On Failed Callback
+            // On Promise Rejected/Failed
             (error) => {
                 console.log("Failed to Update User Profile.", error);
             }

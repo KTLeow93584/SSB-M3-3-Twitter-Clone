@@ -1,112 +1,175 @@
 // =========================================
-import { jwtDecode } from 'jwt-decode';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import Nav from 'react-bootstrap/Nav';
+import Spinner from 'react-bootstrap/Spinner';
+
+import { getSessionToken } from '../apis/authApi.jsx';
 
 import ProfilePostCard from './ProfilePostCard.jsx';
-import { getSessionToken, callServerAPI } from '../apis/authApi.jsx';
+import ModifyPostModal from './ModifyPostModal.jsx';
+import DeletePostModal from './DeletePostModal.jsx';
+
+import { months } from '../data/time.js';
+import { fetchPostsByUser } from '../feature/posts/postsSlice.jsx';
+
+import defaultProfileImage from '../assets/images/user-profile-default.webp';
 // =========================================
 export default function ProfileMidBody() {
-    const [posts, setPosts] = useState([]);
+    const [showModify, setShowModify] = useState(false);
+    const onCloseModifyModalCallback = () => setShowModify(false);
+    const onShowModifyModalCallback = () => setShowModify(true);
 
-    const url = "https://pbs.twimg.com/profile_banners/1500965847896305664/1710384523/1500x500";
-    const pic = "https://pbs.twimg.com/profile_images/1668651557456424971/o2gw4jmn_400x400.png";
+    const [showDelete, setShowDelete] = useState(false);
+    const onCloseDeleteModalCallback = () => setShowDelete(false);
+    const onShowDeleteModalCallback = () => setShowDelete(true);
 
-    // Fetch posts based on user id.
-    const onFetchUserPosts = (userId) => {
-        callServerAPI(`posts/user/${userId}`, "GET", null,
-            // On Successful Callback
-            (data) => {
-                // Debug
-                // console.log("[User Posts GET] Returned Data.", data);
+    const [targetPost, setTargetPost] = useState(null);
 
-                setPosts(data.posts);
-            },
-            // On Failed Callback
-            (error) => console.log("Error.", error)
-        );
+    const onModifyPost = (post) => {
+        setTargetPost(post);
+        onShowModifyModalCallback();
     };
 
+    const onDeletePost = (post) => {
+        setTargetPost(post);
+        onShowDeleteModalCallback();
+    };
+
+    const navigate = useNavigate();
+    const onEditProfile = () => {
+        navigate("/edit");
+    };
+
+    const dispatch = useDispatch();
+
+    const activeUserObj = useSelector((state) => state.activeUser);
+    const activeUser = activeUserObj.user;
+
+    const posts = useSelector((state) => state.posts.posts);
+    const loading = useSelector((state) => state.posts.loading);
+
+    const sessionToken = getSessionToken();
+    const decodedToken = jwtDecode(sessionToken);
+    const userId = decodedToken.id;
+
     useEffect(() => {
-        const token = getSessionToken();
-        if (token) {
-            const decodedToken = jwtDecode(token);
-            const userId = decodedToken.id;
-            onFetchUserPosts(userId);
-        }
+        dispatch(fetchPostsByUser());
+    }, [dispatch]);
 
-        const onNewPostCreatedCallback = (newPostData) => {
-            setPosts((previousPosts) => {
-                const newPosts = [...previousPosts];
-                newPosts.push(newPostData.detail);
+    /*
+    const onBrowseUsersCallback = () => {
+        callServerAPI("users/1", "GET", null,
+            // On Successful Callback
+            (result) => {
+                // Debug
+                //console.log("[Users Query] Results.", result);
 
-                return newPosts;
-            });
-        };
-
-        window.addEventListener("On Create New Post", onNewPostCreatedCallback);
-        return (() => {
-            window.removeEventListener("On Create New Post", onNewPostCreatedCallback);
-        });
-    }, []);
+                const users = result.map((user) => ({
+                    id: user.id,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    profileImage: user.profile_image,
+                    followed: user.followed,
+                    totalFollowers: user.total_followers
+                }));
+                navigate("/users", {
+                    state: { users: users }
+                });
+            },
+            // On Failed Callback
+            (error) => {
+                // Debug
+                console.log("Error.", error);
+            }
+        );
+    };
+    */
 
     return (
-        <Col className="col-6 bg-light" style={{ border: "1px solid lightgrey" }}>
-            <Image src={url} fluid />
-            <br />
-            <Image src={pic} roundedCircle style={{ width: 150, position: "absolute", top: "140px", border: "4px solid #f8f9fa", marginLeft: 15 }} />
+        <>
+            <Col className="col-md-5 col-lg-6 bg-light m-0 p-0" style={{ border: "1px solid lightgrey" }}>
+                {
+                    activeUser.banner_image ?
+                        (<Image src={activeUser.banner_image} className="banner-img" />) :
+                        (<div className="banner-img banner-default-bg" />)
+                }
 
-            <Row className="justify-content-end">
-                <Col xs="auto">
-                    <Button className="rounded-pill mt-2" variant="outline-secondary">
+                <div className="d-flex align-items-center" style={{ marginTop: "-30px" }}>
+                    <Image src={activeUser.profile_image ? activeUser.profile_image : defaultProfileImage}
+                        roundedCircle
+                        className="ms-3"
+                        style={{
+                            minWidth: "48px", minHeight: "48px", maxWidth: "128px", maxHeight: "128px",
+                            width: "100%", height: "auto", border: "4px solid #ffffff", marginLeft: "15px"
+                        }} />
+                    <Button className="rounded-pill ms-auto me-3 fw-bold" variant="outline-secondary"
+                        onClick={onEditProfile}>
                         Edit Profile
                     </Button>
-                </Col>
-            </Row>
+                </div>
 
-            <p className="mt-5" style={{ margin: 0, fontWeight: "bold", fontSize: "15px" }}>
-                Kaz
-            </p>
+                <div className="mx-3">
+                    <p className="mt-5 mx-0 mb-0" style={{ fontWeight: "bold", fontSize: "15px" }}>
+                        {activeUser.first_name + " " + activeUser.last_name}
+                    </p>
 
-            <p style={{ marginBottom: "2px" }}>
-                @kaz
-            </p>
+                    <p style={{ marginBottom: "2px" }}>
+                        @{activeUser.first_name + activeUser.last_name}
+                    </p>
 
-            <p>I help robots with robots at robots.co.</p>
+                    <div className="mt-3 mb-2">
+                        <i className="bi bi-calendar3"></i>
+                        <span> </span>
+                        <span>Joined {months[activeUser.joined_at_month] + " " + activeUser.joined_at_year}</span>
+                    </div>
 
-            <p>Robotpreneur</p>
+                    <p style={{ fontSize: "0.9em" }}>
+                        <strong>{activeUser.following_count}</strong> Following <strong>{activeUser.follower_count}</strong> Followers
+                    </p>
+                </div>
 
-            <p>
-                <strong>1313</strong> Following <strong>444</strong> Followers
-            </p>
-
-            <Nav variant="underline" defaultActiveKey="/home" justify>
-                <Nav.Item>
-                    <Nav.Link eventKey="/home">Tweets</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-1">Replies</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-2">Highlights</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-3">Media</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-4">Likes</Nav.Link>
-                </Nav.Item>
-            </Nav>
-            {
-                posts.length > 0 ? posts.map((post) => (<ProfilePostCard key={post.id} content={post.content} />)) : null
-            }
-        </Col>
+                <Nav variant="underline" defaultActiveKey="/home" justify>
+                    <Nav.Item>
+                        <Nav.Link eventKey="/home">Posts</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link eventKey="link-1">Replies</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link eventKey="link-2">Highlights</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link eventKey="link-3">Media</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link eventKey="link-4">Likes</Nav.Link>
+                    </Nav.Item>
+                </Nav>
+                {
+                    loading && (
+                        <Spinner animation="border" className="ms-3 mt-3" variant="primary" />
+                    )
+                }
+                {
+                    posts.length > 0 ? posts.map((post) => (
+                        <ProfilePostCard
+                            key={post.id} post={post} userId={userId}
+                            onModifyPostCallback={onModifyPost}
+                            onDeletePostCallback={onDeletePost} />
+                    )) : null
+                }
+            </Col>
+            <ModifyPostModal show={showModify} post={targetPost} onCloseModalCallback={onCloseModifyModalCallback} />
+            <DeletePostModal show={showDelete} post={targetPost} onCloseModalCallback={onCloseDeleteModalCallback} />
+        </>
     )
 }
 // =========================================

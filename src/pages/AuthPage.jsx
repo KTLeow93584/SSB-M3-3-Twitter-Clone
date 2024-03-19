@@ -11,8 +11,8 @@ import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image';
 import Modal from 'react-bootstrap/Modal';
 
-import { login } from '../feature/activeUser/activeUserSlice.jsx';
-import { callServerAPI, updateSessionToken } from '../apis/authApi.jsx';
+import { login, register, getUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
+import { callServerAPI } from '../apis/authApi.jsx';
 // =========================================
 export default function AuthPage() {
     const loginImage = "https://sig1.co/img-twitter-1";
@@ -26,7 +26,7 @@ export default function AuthPage() {
 
     const [error, setError] = useState(null);
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const [passwordComplexityLevel, setPasswordComplexityLevel] = useState(0);
@@ -80,16 +80,17 @@ export default function AuthPage() {
 
         // Debug
         //console.log("Sign Up Event");
-
-        callServerAPI("signup", "POST", { username, password, firstName, lastName },
-            // On Successful Callback
-            (result) => {
+        dispatch(register({ email, password, first_name: firstName, last_name: lastName })).then(
+            // On Promise Fulfilled
+            () => {
                 // Debug
-                console.log(result);
+                console.log("[On Registration Successful]");
 
                 setError(null);
+                setModalShow(null);
+                alert("Successfully Registered!");
             },
-            // On Failed Callback
+            // On Promise Rejected/Failed
             (error) => {
                 setError({
                     name: error.code,
@@ -103,62 +104,47 @@ export default function AuthPage() {
         event.preventDefault();
 
         // Debug
-        console.log("Login Event");
+        //console.log("Login Event");
 
-        callServerAPI("login", "POST", { username, password },
-            // On Successful Callback
-            (result) => {
-                if (result.token)
-                    updateSessionToken(result.token);
-
-                setError(null);
-
+        dispatch(login({ email, password })).then(
+            // On Promise Fulfilled
+            () => {
                 // Debug
-                //console.log("Login was successful, token saved");
+                console.log("Login was successful, token saved");
 
-                onFetchUserProfileInfo(result.token);
+                onFetchUserProfileInfo();
             },
-            // On Failed Callback
+            // On Promise Rejected/Failed
             (error) => {
                 // Debug
-                //console.log("Login Failed.", error);
+                console.log("Login Failed.", error);
 
                 setError({
                     name: error.code,
-                    code: error.status
+                    code: error.request.status
                 });
             }
         );
     }
 
-    const onFetchUserProfileInfo = async (token) => {
+    const onFetchUserProfileInfo = async () => {
         // Debug
         //console.log("Get User Profile Event");
 
-        callServerAPI("profile", "GET", null,
-            // On Successful Callback
-            (result) => {
+        dispatch(getUserInfo()).then(
+            // On Promise Fulfilled
+            () => {
                 // Debug
-                //console.log("User Profile.", result);
+                //console.log("User Profile Obtained.");
 
-                dispatch(login({
-                    user: {
-                        firstName: result.firstName,
-                        lastName: result.lastName,
-                        profileImage: result.profileImage
-                    },
-                    token: token
-                }));
                 navigate("/profile");
             },
-            // On Failed Callback
+            // On Promise Rejected/Failed
             (error) => {
-                // Debug
-                console.log("Failed To Get User Profile.", error);
-
+                console.log("Error.", error);
                 setError({
                     name: error.code,
-                    code: error.status
+                    code: error.request.status
                 });
             }
         );
@@ -224,7 +210,7 @@ export default function AuthPage() {
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Control
                                 required
-                                onChange={(event) => setUsername(event.target.value)}
+                                onChange={(event) => setEmail(event.target.value)}
                                 autoComplete="on"
                                 type="email"
                                 placeholder="Enter email" />

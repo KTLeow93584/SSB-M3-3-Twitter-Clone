@@ -1,23 +1,58 @@
 // =========================================
+import { useDispatch } from 'react-redux';
+
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
+
+import { likeAPost, unlikeAPost } from '../feature/posts/postsSlice.jsx';
+
+import defaultProfileImage from '../assets/images/user-profile-default.webp';
 // =========================================
-export default function ProfilePostCard({content}) {
-    const pic = "https://pbs.twimg.com/profile_images/1668651557456424971/o2gw4jmn_400x400.png";
+export default function ProfilePostCard({ post, userId, onModifyPostCallback = null, onDeletePostCallback = null }) {
+    const dispatch = useDispatch();
+    const onClickLikeButton = () => dispatch(post.liked === "False" ? likeAPost(post.id) : unlikeAPost(post.id));
 
     return (
         <Row className="p-3" style={{ borderTop: "1px solid #d3d3d3", borderBottom: "1px solid #d3d3d3" }}>
-            <Col className="col-sm-1">
-                <Image src={pic} fluid roundedCircle />
+            <Col className="col-2">
+                <Image src={post.profile_image ? post.profile_image : defaultProfileImage}
+                    roundedCircle
+                    className="ms-3"
+                    style={{
+                        minWidth: "32px", minHeight: "32px", maxWidth: "48px", maxHeight: "48px",
+                        width: "100%", height: "auto"
+                    }} />
             </Col>
 
             <Col>
-                <strong>Kaz</strong>
-                <p className="mt-0 mb-2 py-0" style={{ color: "#777777" }}>@kaz</p>
-                <p>{content}</p>
+                <div className="d-flex align-items-start justify-content-between">
+                    <div>
+                        <strong>{post.first_name + " " + post.last_name}</strong>
+                        <p className="mt-0 mb-2 py-0" style={{ color: "#777777" }}>@{post.first_name + post.last_name}</p>
+                    </div>
+                    {
+                        post.user_id === userId ? (
+                            <div className="ms-auto">
+                                <Button variant="light" onClick={() => {
+                                    if (onModifyPostCallback)
+                                        onModifyPostCallback(post);
+                                }}>
+                                    <i className="bi bi-screwdriver"></i>
+                                </Button>
+                                <Button variant="light" onClick={() => {
+                                    if (onDeletePostCallback)
+                                        onDeletePostCallback(post);
+                                }}>
+                                    <i className="bi bi-trash"></i>
+                                </Button>
+                            </div>
+                        ) : null
+                    }
+                </div>
+                <p>{post.content}</p>
                 <div className="d-flex justify-content-between">
                     <Button variant="light">
                         <i className="bi bi-chat"></i>
@@ -25,8 +60,8 @@ export default function ProfilePostCard({content}) {
                     <Button variant="light">
                         <i className="bi bi-repeat"></i>
                     </Button>
-                    <Button variant="light">
-                        <i className="bi bi-heart"></i>
+                    <Button variant="light" onClick={onClickLikeButton}>
+                        <i className={`bi bi-heart${post.liked === "True" ? "-fill" : ""}`}>{" " + post.like_count}</i>
                     </Button>
                     <Button variant="light">
                         <i className="bi bi-graph-up"></i>
@@ -36,7 +71,7 @@ export default function ProfilePostCard({content}) {
                     </Button>
                 </div>
             </Col>
-        </Row>
+        </Row >
     )
 }
 // =========================================

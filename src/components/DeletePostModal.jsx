@@ -1,19 +1,19 @@
 // =========================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { createANewPost } from '../feature/posts/postsSlice.jsx';
+import { deletePost } from '../feature/posts/postsSlice.jsx';
 // =========================================
-export default function NewPostModal({ show, onCloseModalCallback }) {
-    const [postContent, setPostContent] = useState("");
+export default function DeletePostModal({ show, post, onCloseModalCallback }) {
+    // =====================
     const dispatch = useDispatch();
 
-    const onSaveNewPost = () => {
-        dispatch(createANewPost(postContent)).then(
+    const onDeletePost = () => {
+        dispatch(deletePost(post.id)).then(
             // On Promise Fulfilled
             () => {
                 if (onCloseModalCallback)
@@ -23,28 +23,30 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
             null
         );
     };
-
+    // =====================
     return (
         <>
             <Modal show={show} onHide={onCloseModalCallback}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Create A New Tweet Post</Modal.Title>
+                    <Modal.Title>Confirm Post Deletion?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="postContent">
-                            <Form.Control
+                            <Form.Control disabled
                                 placeholder="What is happening?!"
                                 as="textarea"
                                 rows={3}
-                                value={postContent}
-                                onChange={(event) => setPostContent(event.target.value)} />
+                                value={post ? post.content : ""} />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" className="rounded-pill" onClick={onSaveNewPost}>
-                        Tweet
+                    <Button variant="primary" className="rounded-pill" onClick={onDeletePost}>
+                        Yes
+                    </Button>
+                    <Button variant="primary" className="rounded-pill" onClick={onCloseModalCallback}>
+                        No
                     </Button>
                 </Modal.Footer>
             </Modal>

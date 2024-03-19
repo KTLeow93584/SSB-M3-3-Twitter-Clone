@@ -34,47 +34,45 @@ function onAPIEnd() {
 export async function callServerAPI(subURL, method = "GET", body = {},
     onSuccessfulCallback = null, onFailedCallback = null) {
     // Start Loader class at the beginning of an API.
-    onAPIStart();
+    //onAPIStart();
 
     const fullURL = url + subURL;
 
     // Debug
-    //console.log("URL:", fullURL);
+    //console.log("[On API Request] URL:", fullURL);
     try {
         let result = null;
         const headers = {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "*/*",
-                /*"User-Agent": "React.js Web",*/
-                "Authorization": sessionToken ? ("Bearer " + sessionToken) : null
-            },
+            "Content-Type": "application/json",
+            "Accept": "*/*",
+            /*"User-Agent": "React.js Web",*/
+            "Authorization": sessionToken ? ("Bearer " + sessionToken) : null
         };
 
         // Debug
-        //console.log("Header.", headers);
-        //console.log("Body.", body);
+        //console.log("[On API Request] Header.", headers);
+        //console.log("[On API Request] Body.", body);
 
         switch (method) {
             case "GET":
-                result = await axios.get(fullURL, headers);
+                result = await axios.get(fullURL, { headers });
                 break;
             case "POST":
-                result = await axios.post(fullURL, body, headers);
+                result = await axios.post(fullURL, body ? body : {}, { headers });
                 break;
             case "PUT":
-                result = await axios.put(fullURL, body, headers);
+                result = await axios.put(fullURL, body ? body : {}, { headers });
                 break;
             case "PATCH":
-                result = await axios.patch(fullURL, body, headers);
+                result = await axios.patch(fullURL, body ? body : {}, { headers });
                 break;
             case "DELETE":
-                result = await axios.delete(fullURL, body, headers);
+                result = await axios.delete(fullURL, { headers, data: body ? body : {} });
                 break;
         }
 
         // Debug
-        console.log("Result.", result);
+        console.log("[On API Request Successful] Result.", result);
 
         const data = result.data;
         if (result.status === 200 || result.status === 201) {
@@ -90,12 +88,14 @@ export async function callServerAPI(subURL, method = "GET", body = {},
                 });
         }
 
+        return data;
+
         // End Loader class at the end of an API.
-        onAPIEnd();
+        //onAPIEnd();
     }
     catch (error) {
         // Debug
-        // console.log("[On API] Yielded an error.", error);
+        // console.log("[On API Request Failed] Yielded an error.", error);
 
         // End Loader class at the end of an API.
 
@@ -105,10 +105,13 @@ export async function callServerAPI(subURL, method = "GET", body = {},
                 status: error.request.status,
                 message: error && error.data && error.data.message ? error.data.message : "N/A"
             });
-        onAPIEnd();
+
+        //onAPIEnd();
+        
+        return error;
     }
 
 }
 
-export { sessionToken };
+export { sessionToken, url };
 // ====================================================================

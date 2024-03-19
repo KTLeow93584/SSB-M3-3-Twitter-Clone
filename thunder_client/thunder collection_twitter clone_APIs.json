@@ -1,0 +1,588 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Twitter Clone APIs",
+    "dateExported": "2024-03-19T03:17:34.506Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "1e064a32-a2df-4a9b-b8c3-f0191c727e4e",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Login",
+            "url": "{{url}}/login",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-03-18T19:32:06.121Z",
+            "modified": "2024-03-18T21:38:45.743Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"user1@user.com\",\n  \"password\": \"111\"\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "22ee4708-c0e2-4fd1-bff1-b2a662351b5a",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Logout",
+            "url": "{{url}}/logout",
+            "method": "POST",
+            "sortNum": 15000,
+            "created": "2024-03-19T02:26:22.163Z",
+            "modified": "2024-03-19T02:26:46.346Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "488ee858-fad5-4849-b563-08c431a1ed49",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Register",
+            "url": "{{url}}/register",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-03-18T19:32:56.454Z",
+            "modified": "2024-03-18T21:38:58.457Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"user10@user.com\",\n  \"password\": \"101010\",\n  \"first_name\": \"Dummy\",\n  \"last_name\": \"User 10\",\n  \"profile_image\": \"\"\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "27804fe9-74e9-42d2-98d7-0d305ab21f74",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Retrieve User Profile",
+            "url": "{{url}}/profile",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-03-18T19:34:19.397Z",
+            "modified": "2024-03-18T21:39:11.320Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "f5979a87-1a52-4061-a596-d8d61f57ba17",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Modify User Profile (Empty BODY)",
+            "url": "{{url}}/profile",
+            "method": "PUT",
+            "sortNum": 40000,
+            "created": "2024-03-18T19:38:37.336Z",
+            "modified": "2024-03-18T21:39:21.620Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n}",
+                "form": []
+            },
+            "reqType": "put",
+            "tests": []
+        },
+        {
+            "_id": "70965395-c71d-44a5-969c-25cbef0fc626",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Modify User Profile (Filled BODY)",
+            "url": "{{url}}/profile",
+            "method": "PUT",
+            "sortNum": 50000,
+            "created": "2024-03-18T20:01:39.383Z",
+            "modified": "2024-03-18T21:39:27.081Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"first_name\": \"Random Dummy\",\n  \"last_name\": \"User 1\",\n  \"profile_image\": \"https://picsum.photos/id/11/200/200\"\n}",
+                "form": []
+            },
+            "reqType": "put",
+            "tests": []
+        },
+        {
+            "_id": "ff90287a-04ec-4c80-875d-f0c93401fae5",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get Specific Post (Valid Post ID)",
+            "url": "{{url}}/post/11",
+            "method": "GET",
+            "sortNum": 60000,
+            "created": "2024-03-18T20:03:47.043Z",
+            "modified": "2024-03-18T21:39:32.213Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "b91d1893-fd05-405e-afe8-1005d323b5b0",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get Specific Post (Invalid Post ID)",
+            "url": "{{url}}/post/999",
+            "method": "GET",
+            "sortNum": 70000,
+            "created": "2024-03-18T20:08:54.533Z",
+            "modified": "2024-03-18T21:39:37.504Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "2be9dd9d-f7f7-4cab-8496-643dc1ebf60f",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get User's Posts",
+            "url": "{{url}}/post/1/comments",
+            "method": "GET",
+            "sortNum": 75000,
+            "created": "2024-03-18T20:10:03.869Z",
+            "modified": "2024-03-18T21:39:44.415Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "e7b109e9-6c21-4aa8-a452-48263f078070",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get All Users' & Followers' Posts",
+            "url": "{{url}}/posts",
+            "method": "GET",
+            "sortNum": 77500,
+            "created": "2024-03-19T01:56:54.753Z",
+            "modified": "2024-03-19T01:57:22.963Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "d236647e-370b-4a25-ab6f-c27c58afadbe",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Create a New Post",
+            "url": "{{url}}/post",
+            "method": "POST",
+            "sortNum": 80000,
+            "created": "2024-03-18T20:09:29.732Z",
+            "modified": "2024-03-18T21:39:50.463Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_content\": \"Insert content here 3\"\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "ca48a427-e895-4b7f-bb20-c305be28c262",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Create a New Post (Empty Content)",
+            "url": "{{url}}/post",
+            "method": "POST",
+            "sortNum": 90000,
+            "created": "2024-03-18T20:13:06.633Z",
+            "modified": "2024-03-18T21:39:55.144Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_content\": \"\"\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "0ba5a699-b79e-464c-a833-f60588820ede",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Modify an Existing Post",
+            "url": "{{url}}/post",
+            "method": "PUT",
+            "sortNum": 100000,
+            "created": "2024-03-18T20:17:36.642Z",
+            "modified": "2024-03-18T21:40:00.313Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_id\": 10,\n  \"post_content\": \"Hello World 123\"\n}",
+                "form": []
+            },
+            "reqType": "put",
+            "tests": []
+        },
+        {
+            "_id": "4ef57781-1cdc-4b4e-b385-4f835a446cd0",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Delete an Existing Post",
+            "url": "{{url}}/post",
+            "method": "DELETE",
+            "sortNum": 110000,
+            "created": "2024-03-18T20:24:55.124Z",
+            "modified": "2024-03-18T21:40:05.080Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_id\": 8\n}",
+                "form": []
+            },
+            "reqType": "del",
+            "tests": []
+        },
+        {
+            "_id": "9309ae27-0846-42b5-9e45-0aca41a0edc8",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get Post's List of Users who Liked",
+            "url": "{{url}}/post/1/likes",
+            "method": "GET",
+            "sortNum": 130000,
+            "created": "2024-03-18T20:28:26.079Z",
+            "modified": "2024-03-18T21:40:11.444Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "a2cbb97d-60fe-4319-8b24-b6938343ec55",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get Post's Like Count",
+            "url": "{{url}}/post/7/likes/count",
+            "method": "GET",
+            "sortNum": 140000,
+            "created": "2024-03-18T20:32:28.136Z",
+            "modified": "2024-03-18T21:40:18.460Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "177ed410-67ae-4133-9a9a-bd0559f4c11e",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Like a Post",
+            "url": "{{url}}/post/like",
+            "method": "POST",
+            "sortNum": 150000,
+            "created": "2024-03-18T20:36:25.780Z",
+            "modified": "2024-03-18T21:40:24.439Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_id\": 7\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "fc8c8852-c841-4a3c-a332-e3bdaed0b08c",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Unlike a Post",
+            "url": "{{url}}/post/like",
+            "method": "DELETE",
+            "sortNum": 160000,
+            "created": "2024-03-18T20:41:23.150Z",
+            "modified": "2024-03-18T21:40:30.068Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_id\": 7\n}",
+                "form": []
+            },
+            "reqType": "del",
+            "tests": []
+        },
+        {
+            "_id": "eee9770d-49b3-4848-850f-8f2a2da19a85",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get Post's Comments",
+            "url": "{{url}}/post/1/comments",
+            "method": "GET",
+            "sortNum": 170000,
+            "created": "2024-03-18T20:48:36.761Z",
+            "modified": "2024-03-18T21:40:36.092Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "891509e2-ed99-42bb-9ad9-7aa4aff18a7e",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Create a new Post Comment",
+            "url": "{{url}}/post/comment",
+            "method": "POST",
+            "sortNum": 180000,
+            "created": "2024-03-18T20:59:11.080Z",
+            "modified": "2024-03-18T21:40:41.727Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"post_id\": 1,\n  \"comment\": \"Greetings from Narnia.\"\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "dd0e1ff4-66f5-4b70-9313-65c7f0e5f2bd",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Modify an Existing Comment",
+            "url": "{{url}}/post/comment",
+            "method": "PUT",
+            "sortNum": 190000,
+            "created": "2024-03-18T21:01:17.213Z",
+            "modified": "2024-03-18T21:40:48.464Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"id\": 1,\n  \"comment\": \"Greetings from Noxus.\"\n}",
+                "form": []
+            },
+            "reqType": "put",
+            "tests": []
+        },
+        {
+            "_id": "bbe457e1-e140-4e02-8118-2386625ab9d9",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Delete an Existing Comment",
+            "url": "{{url}}/post/comment",
+            "method": "DELETE",
+            "sortNum": 200000,
+            "created": "2024-03-18T21:07:23.995Z",
+            "modified": "2024-03-18T21:40:54.901Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"id\": 5\n}",
+                "form": []
+            },
+            "reqType": "del",
+            "tests": []
+        },
+        {
+            "_id": "1e589e7d-ba1d-4b06-a13a-d607cab4e200",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Get User's Follower Count",
+            "url": "{{url}}/user/1/follow/count",
+            "method": "GET",
+            "sortNum": 205000,
+            "created": "2024-03-18T21:21:45.963Z",
+            "modified": "2024-03-18T21:41:01.292Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "49e02c33-a9bd-4b33-9ebe-ce6480adf2e5",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Follow Another User",
+            "url": "{{url}}/follow",
+            "method": "POST",
+            "sortNum": 210000,
+            "created": "2024-03-18T21:15:03.139Z",
+            "modified": "2024-03-18T21:41:06.689Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"user_id\": 4\n}",
+                "form": []
+            },
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "ebf120a2-6c96-4740-a592-94a2af963e88",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Unfollow Another User",
+            "url": "{{url}}/follow",
+            "method": "DELETE",
+            "sortNum": 220000,
+            "created": "2024-03-18T21:15:56.642Z",
+            "modified": "2024-03-18T21:41:12.093Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"user_id\": 4\n}",
+                "form": []
+            },
+            "reqType": "del",
+            "tests": []
+        },
+        {
+            "_id": "6604ce89-e121-4dc3-b74f-328fa38e32aa",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Poll User Results (Paged)",
+            "url": "{{url}}/users/1/3",
+            "method": "GET",
+            "sortNum": 230000,
+            "created": "2024-03-18T21:28:18.825Z",
+            "modified": "2024-03-19T03:15:37.688Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "5cacf727-c61c-41ac-aeb9-8a546bdf0d61",
+            "colId": "b2bfcc7e-9cb9-4de6-9ea4-1e0b88660a71",
+            "containerId": "",
+            "name": "Poll User Results (Full)",
+            "url": "{{url}}/users",
+            "method": "GET",
+            "sortNum": 240000,
+            "created": "2024-03-19T03:15:44.888Z",
+            "modified": "2024-03-19T03:16:07.011Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "{{JWToken}}"
+                }
+            ],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        }
+    ]
+}

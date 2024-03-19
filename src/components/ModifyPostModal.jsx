@@ -1,19 +1,24 @@
 // =========================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { createANewPost } from '../feature/posts/postsSlice.jsx';
+import { updatePost } from '../feature/posts/postsSlice.jsx';
 // =========================================
-export default function NewPostModal({ show, onCloseModalCallback }) {
-    const [postContent, setPostContent] = useState("");
+export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
+    // =====================
+    const [postContent, setPostContent] = useState(post ? post.content : "");
+    useEffect(() => {
+        setPostContent(post ? post.content : "");
+    }, [post]);
+    // =====================
     const dispatch = useDispatch();
 
-    const onSaveNewPost = () => {
-        dispatch(createANewPost(postContent)).then(
+    const onModifyExistingPost = () => {
+        dispatch(updatePost({ id: post.id, content: postContent })).then(
             // On Promise Fulfilled
             () => {
                 if (onCloseModalCallback)
@@ -23,12 +28,12 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
             null
         );
     };
-
+    // =====================
     return (
         <>
             <Modal show={show} onHide={onCloseModalCallback}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Create A New Tweet Post</Modal.Title>
+                    <Modal.Title>Modify Tweet Post</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -43,8 +48,8 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" className="rounded-pill" onClick={onSaveNewPost}>
-                        Tweet
+                    <Button variant="primary" className="rounded-pill" onClick={onModifyExistingPost}>
+                        Re-Tweet
                     </Button>
                 </Modal.Footer>
             </Modal>

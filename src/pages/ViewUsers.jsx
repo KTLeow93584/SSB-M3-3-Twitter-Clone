@@ -27,7 +27,7 @@ export default function ViewUsers() {
     //console.log("Users", users);
 
     const onFollowUser = (user_id, index) => {
-        callServerAPI("follow", "POST", { user_id: user_id },
+        callServerAPI("follow", "DELETE", { user_id: user_id },
             // On Successful Callback
             (data) => {
                 // Debug

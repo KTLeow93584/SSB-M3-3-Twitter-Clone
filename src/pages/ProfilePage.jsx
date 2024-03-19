@@ -1,11 +1,8 @@
-import { useEffect, useSelector } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
-import NavigationPanel from '../components/NavigationPanel.jsx';
 import ProfileSideBar from '../components/ProfileSideBar.jsx';
 import ProfileMidBody from '../components/ProfileMidBody.jsx';
 
@@ -16,16 +13,19 @@ export default function ProfilePage() {
     const dispatch = useDispatch();
 
     const onLogoutCallback = () => {
-        // Clear the token from the local storage.
-        updateSessionToken("");
-        dispatch(logout());
+        dispatch(logout()).then(
+            // On Promise Fulfilled, clear the token from the local storage.
+            () => updateSessionToken(""),
+            // On Promise Rejected/Failed
+            null
+        );
     };
 
     return (
         <>
-            <Container>
-                <Row>
-                    <ProfileSideBar handleLogout={onLogoutCallback} />
+            <Container fluid>
+                <Row className="d-flex justify-content-center">
+                    <ProfileSideBar onLogoutCallback={onLogoutCallback} />
                     <ProfileMidBody />
                 </Row>
             </Container>
