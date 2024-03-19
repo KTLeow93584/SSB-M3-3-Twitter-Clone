@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 
 import { likeAPost, unlikeAPost } from '../feature/posts/postsSlice.jsx';
+import { getTimeFromNow } from '../data/time.js';
 
 import defaultProfileImage from '../assets/images/user-profile-default.webp';
 // =========================================
@@ -31,7 +32,9 @@ export default function ProfilePostCard({ post, userId, onModifyPostCallback = n
                 <div className="d-flex align-items-start justify-content-between">
                     <div className="d-flex align-items-center">
                         <strong className="me-1">{post.first_name + " " + post.last_name}</strong>
-                        <p className="m-0 p-0" style={{ fontSize: "0.8em", color: "#777777" }}>@{(post.first_name + post.last_name).replace(" ", "")} • {"Insert Date Here"}</p>
+                        <p className="m-0 p-0" style={{ fontSize: "0.8em", color: "#777777" }}>
+                            @{(post.first_name + post.last_name).replace(" ", "")} • {getTimeFromNow(new Date(post.created_at))}
+                        </p>
                     </div>
                     {
                         post.user_id === userId ? (

@@ -60,6 +60,8 @@ const timezoneAbbrs = {
 
 const millisecondsInAMinute = 1000 * 60;
 const millisecondsInAnHour = millisecondsInAMinute * 60;
+const millisecondsInADay = millisecondsInAnHour * 24;
+const millisecondsInAWeek = millisecondsInADay * 7;
 // ==============================================
 export function formatTime(date, skipSeconds = false) {
     let hours = date.getHours() % 12;
@@ -120,6 +122,50 @@ export function formatTimezoneSimpleParseHM(hours, minutes) {
     result += `${hoursAbs.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
     
     return result;
+}
+
+export function getTimeFromNow(date) {
+    const diffMS = Date.now() - date.getTime();
+    // ===========
+    // Weeks
+    const diffWeek = Math.floor(diffMS / millisecondsInAWeek);
+
+    // Debug
+    //console.log("Difference in Weeks", diffWeek);
+    
+    if (diffWeek > 0)
+        return diffWeek + "w";
+    // ===========
+    // Days
+    const diffDay = Math.floor(diffMS / millisecondsInADay);
+
+    // Debug
+   // console.log("Difference in Days", diffDay);
+
+    if (diffDay > 0)
+        return diffDay + "d";
+    // ===========
+    // Hours
+    const diffHour = Math.floor(diffMS / millisecondsInAnHour);
+
+    // Debug
+    //console.log("Difference in Hours", diffHour);
+
+    if (diffHour > 0)
+        return diffHour + "h";
+    // ===========
+    // Minutes
+    const diffMinute = Math.floor(diffMS / millisecondsInAMinute);
+
+    // Debug
+    //console.log("Difference in Minutes", diffMinute);
+
+    if (diffMinute > 0)
+        return diffMinute + "m";
+    // ===========
+    // Very Recent - Less than a minute ago.
+    return "Just Now";
+    // ===========
 }
 // ==============================================
 export {
