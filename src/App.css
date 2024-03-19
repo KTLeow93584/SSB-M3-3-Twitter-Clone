@@ -34,10 +34,11 @@
 /* Loaders */
 
 #loader-container {
-    position: absolute;
+    position: fixed;
     background-color: rgba(0.35, 0.35, 0.35, 0.3);
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     z-index: 2000;
 }
 

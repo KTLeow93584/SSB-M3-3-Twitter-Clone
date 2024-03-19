@@ -135,7 +135,7 @@ const postsSlice = createSlice({
             // Debug
             //console.log("[Create a New Post] Payload.", action.payload);
 
-            state.posts.push(action.payload.clientData);
+            state.posts.unshift(action.payload.clientData);
         });
 
         builder.addCase(updatePost.fulfilled, (state, action) => {
