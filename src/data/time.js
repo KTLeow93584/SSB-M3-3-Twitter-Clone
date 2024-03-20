@@ -81,9 +81,9 @@ export function formatTime(date, skipSeconds = false) {
     return result;
 }
 
-export function formatDate(date) {
+export function formatDate(date, skipDay = false) {
     const dateNo = date.getDate();
-    let result = `${days[date.getDay()]},  ${dateNo + (dateNo - 1 >= denominators.length ? defaultDenominator : denominators[dateNo - 1])} 
+    let result = `${!skipDay ? (days[date.getDay()] + ", ") : ""}${dateNo + (dateNo - 1 >= denominators.length ? defaultDenominator : denominators[dateNo - 1])} 
     ${months[date.getMonth()]}, ${date.getFullYear()}`;
 
     return result;

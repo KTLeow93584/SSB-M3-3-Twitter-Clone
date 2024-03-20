@@ -6,11 +6,11 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { deletePost } from '../feature/posts/postsSlice.jsx';
+import { deleteComment } from '../feature/comments/commentsSlice.jsx';
 
 import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
-export default function DeletePostModal({ show, post, onCloseModalCallback, onAfterDeleteCallback = null }) {
+export default function DeleteCommentModal({ show, post, comment, onCloseModalCallback, onAfterDeleteCallback = null }) {
     // =====================
     const [error, setError] = useState(null);
 
@@ -22,11 +22,11 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
     // =====================
     const dispatch = useDispatch();
 
-    const onDeletePost = () => {
+    const onDeleteComment = () => {
         onLoadingStart("Global");
         setError(null);
 
-        dispatch(deletePost({ post_id: post.post_id })).then(
+        dispatch(deleteComment({ post_id: post.post_id, comment_id: comment.comment_id })).then(
             (action) => {
                 onLoadingEnd("Global");
 
@@ -46,7 +46,7 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
                     //console.log("[On Post Deletion Successful] Payload.", action.payload);
 
                     if (onAfterDeleteCallback)
-                        onAfterDeleteCallback();
+                        onAfterDeleteCallback({ comment_count: action.payload.client_data.post.comment_count });
 
                     if (onCloseModalCallback)
                         onCloseModalCallback();
@@ -68,20 +68,20 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
                                 placeholder="What is happening?!"
                                 as="textarea"
                                 rows={3}
-                                value={post ? post.post_content : ""} />
+                                value={comment ? comment.comment_content : ""} />
                         </Form.Group>
                     </Form>
                     {/* Error Message Highlight */}
                     {
                         error ? (
                             <p className="fs-6 text-danger">
-                                Something went wrong with the post deletion process. (Error: {error.name}, Code: {error.code})
+                                Something went wrong with the comment deletion process. (Error: {error.name}, Code: {error.code})
                             </p>
                         ) : null
                     }
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" className="rounded-pill" onClick={onDeletePost}>
+                    <Button variant="primary" className="rounded-pill" onClick={onDeleteComment}>
                         Yes
                     </Button>
                     <Button variant="primary" className="rounded-pill" onClick={onCloseModal}>

@@ -14,16 +14,18 @@ import storage from 'redux-persist/lib/storage'
 
 import activeUserReducer from './feature/activeUser/activeUserSlice.jsx';
 import postsReducer from './feature/posts/postsSlice.jsx';
+import commentsReducer from './feature/comments/commentsSlice.jsx';
 
 const reducers = combineReducers({
     activeUser: activeUserReducer,
-    posts: postsReducer
+    posts: postsReducer,
+    comments: commentsReducer
 });
 
 const persistConfig = {
     key: "root",
     storage,
-    blacklist: ["posts"],
+    blacklist: ["posts", "comments"],
     whitelist: ["activeUser"]
 };
 

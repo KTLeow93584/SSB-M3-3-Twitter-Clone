@@ -42,7 +42,7 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                     //console.log("[On Post Creation Successful] Payload.", action.payload);
 
                     setPostContent("");
-                    
+
                     if (onCloseModalCallback)
                         onCloseModalCallback();
                 }
@@ -59,7 +59,7 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="postContent">
-                            <Form.Control
+                            <Form.Control required
                                 placeholder="What is happening?!"
                                 as="textarea"
                                 rows={3}

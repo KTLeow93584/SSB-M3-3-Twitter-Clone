@@ -11,8 +11,8 @@ import UserAuth from './auths/UserAuth.jsx';
 
 import AuthPage from './pages/AuthPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import ViewPost from './pages/ViewPost.jsx';
 import EditProfile from './pages/EditProfile.jsx';
-import ViewUsers from './pages/ViewUsers.jsx';
 
 import './App.css';
 
@@ -61,9 +61,9 @@ function App() {
 
                 <Route element={
                   <UserAuth>
-                    <ViewUsers />
+                    <ViewPost />
                   </UserAuth>
-                } path="/users" />
+                } path="/post/:id" />
 
                 <Route element={
                   <UserAuth>

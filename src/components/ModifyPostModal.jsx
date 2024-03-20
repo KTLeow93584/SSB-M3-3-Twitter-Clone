@@ -13,10 +13,16 @@ import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
     // =====================
     const [error, setError] = useState(null);
+
+    const onCloseModal = () => {
+        setError(null);
+        if (onCloseModalCallback)
+            onCloseModalCallback();
+    };
     // =====================
-    const [postContent, setPostContent] = useState(post ? post.content : "");
+    const [postContent, setPostContent] = useState(post ? post.post_content : "");
     useEffect(() => {
-        setPostContent(post ? post.content : "");
+        setPostContent(post ? post.post_content : "");
     }, [post]);
     // =====================
     const dispatch = useDispatch();
@@ -25,7 +31,7 @@ export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
         onLoadingStart("Global");
         setError(null);
 
-        dispatch(updatePost({ post_id: post.id, post_content: postContent })).then(
+        dispatch(updatePost({ post_id: post.post_id, post_content: postContent })).then(
             (action) => {
                 onLoadingEnd("Global");
 
@@ -55,14 +61,14 @@ export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
     // =====================
     return (
         <>
-            <Modal show={show} onHide={onCloseModalCallback}>
+            <Modal show={show} onHide={onCloseModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Modify Tweet Post</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="postContent">
-                            <Form.Control
+                            <Form.Control required
                                 placeholder="What is happening?!"
                                 as="textarea"
                                 rows={3}

@@ -4,9 +4,23 @@ import { callServerAPI } from '../../apis/authApi.jsx';
 
 // Async thunk for fetching a user's post.
 export const fetchPostsByUser = createAsyncThunk(
-    "posts/fetchByUser",
+    "posts/fetch/user",
     async (params, api) => {
         const result = await callServerAPI("posts", "GET", null);
+
+        // API errored callback.
+        if (result.code)
+            return api.rejectWithValue({ code: result.code, status: result.request.status });
+        // API successful callback.
+        else
+            return result;
+    }
+);
+
+export const fetchPostData = createAsyncThunk(
+    "post/fetch",
+    async (params, api) => {
+        const result = await callServerAPI(`post/${params.post_id}`, "GET", null);
 
         // API errored callback.
         if (result.code)
@@ -123,60 +137,65 @@ const postsSlice = createSlice({
     initialState: { posts: [] },
     reducers: {},
     extraReducers: (builder) => {
-        // Fetch Posts By User
+        // Fetch all Posts by User.
         builder.addCase(fetchPostsByUser.fulfilled, (state, action) => {
             // Debug
             //console.log("[Fetch Posts By User] Payload.", action.payload);
 
-            state.posts = action.payload.clientData.posts;
+            state.posts = action.payload.client_data.posts;
         });
 
+        // Creating a new post.
         builder.addCase(createANewPost.fulfilled, (state, action) => {
             // Debug
             //console.log("[Create a New Post] Payload.", action.payload);
 
-            state.posts.unshift(action.payload.clientData);
+            state.posts.unshift(action.payload.client_data.post);
         });
 
+        // Updating an existing post.
         builder.addCase(updatePost.fulfilled, (state, action) => {
             // Debug
-            //console.log("[Modify an Existing New Post] Payload.", action.payload);
+            //console.log("[Modify an Existing Post] Payload.", action.payload);
 
-            const postIndex = state.posts.findIndex((post) => post.id === action.payload.clientData.id);
+            const postIndex = state.posts.findIndex((post) => post.post_id === action.payload.client_data.post.post_id);
 
             const newPost = state.posts[postIndex];
-            newPost.content = action.payload.clientData.content;
+            newPost.post_content = action.payload.client_data.post.post_content;
 
             state.posts[postIndex] = newPost;
         });
 
+        // Deleting an existing post.
         builder.addCase(deletePost.fulfilled, (state, action) => {
             // Debug
-            console.log("[Delete an Existing New Post] Payload.", action.payload);
+            //console.log("[Delete an Existing Post] Payload.", action.payload);
 
-            const postIndex = state.posts.findIndex((post) => post.id === action.payload.clientData.id);
+            const postIndex = state.posts.findIndex((post) => post.post_id === action.payload.client_data.post.post_id);
 
             state.posts.splice(postIndex, 1);
         });
 
+        // Liking an existing post.
         builder.addCase(likeAPost.fulfilled, (state, action) => {
             // Debug
             //console.log("[Like a Post] Payload.", action.payload);
 
-            const postIndex = state.posts.findIndex((post) => post.id === action.payload.clientData.post_id);
+            const postIndex = state.posts.findIndex((post) => post.post_id === action.payload.client_data.post.post_id);
 
             state.posts[postIndex].liked = "True";
-            state.posts[postIndex].like_count++;
+            state.posts[postIndex].like_count = action.payload.client_data.post.like_count;
         });
 
+        // Unliking an existing post.
         builder.addCase(unlikeAPost.fulfilled, (state, action) => {
             // Debug
             //console.log("[Unlike a Post] Payload.", action.payload);
 
-            const postIndex = state.posts.findIndex((post) => post.id === action.payload.clientData.post_id);
+            const postIndex = state.posts.findIndex((post) => post.post_id == action.payload.client_data.post.post_id);
 
             state.posts[postIndex].liked = "False";
-            state.posts[postIndex].like_count--;
+            state.posts[postIndex].like_count = action.payload.client_data.post.like_count;
         });
     }
 });

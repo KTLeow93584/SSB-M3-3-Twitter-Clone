@@ -11,7 +11,7 @@ import Image from 'react-bootstrap/Image';
 import Nav from 'react-bootstrap/Nav';
 import Spinner from 'react-bootstrap/Spinner';
 
-import ProfilePostCard from './ProfilePostCard.jsx';
+import ProfilePostCard from './PostCard.jsx';
 import ModifyPostModal from './ModifyPostModal.jsx';
 import DeletePostModal from './DeletePostModal.jsx';
 
@@ -56,7 +56,7 @@ export default function ProfileMidBody() {
     const [postLoaderVisibility, setPostLoaderVisibility] = useState(false);
 
     useEffect(() => {
-        setPostLoaderVisibility(true)
+        setPostLoaderVisibility(true);
 
         dispatch(fetchPostsByUser()).then(
             (action) => {
@@ -151,14 +151,14 @@ export default function ProfileMidBody() {
                     postLoaderVisibility ? null : (
                         posts.length > 0 ? posts.map((post) => (
                             <ProfilePostCard
-                                key={post.id} post={post} userId={userId}
-                                onModifyPostCallback={onModifyPost}
-                                onDeletePostCallback={onDeletePost} />
+                                key={post.post_id} post={post} userId={userId}
+                                onModifyCallback={onModifyPost}
+                                onDeleteCallback={onDeletePost} />
                         )) : (
                             <div className="d-flex justify-content-center mt-5">
                                 <p className="m-0 p-0 text-center fw-bold" style={{ fontSize: "0.9em" }}>
                                     Kickstart your journey via clicking on the &quot;Tweet&quot; button and share with us how was your day!
-                                    </p>
+                                </p>
                             </div>
                         )
                     )

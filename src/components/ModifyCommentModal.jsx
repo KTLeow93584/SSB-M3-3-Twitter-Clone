@@ -1,16 +1,16 @@
 // =========================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { deletePost } from '../feature/posts/postsSlice.jsx';
+import { updateComment } from '../feature/comments/commentsSlice.jsx';
 
 import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
-export default function DeletePostModal({ show, post, onCloseModalCallback, onAfterDeleteCallback = null }) {
+export default function ModifyCommentModal({ show, comment, onCloseModalCallback, onAfterModifyCallback = null }) {
     // =====================
     const [error, setError] = useState(null);
 
@@ -20,20 +20,26 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
             onCloseModalCallback();
     };
     // =====================
+    const [commentContent, setCommentContent] = useState(comment ? comment.comment_content : "");
+
+    useEffect(() => {
+        setCommentContent(comment ? comment.comment_content : "");
+    }, [comment]);
+    // =====================
     const dispatch = useDispatch();
 
-    const onDeletePost = () => {
+    const onModifyExistingComment = () => {
         onLoadingStart("Global");
         setError(null);
 
-        dispatch(deletePost({ post_id: post.post_id })).then(
+        dispatch(updateComment({ comment_id: comment.comment_id, comment_content: commentContent })).then(
             (action) => {
                 onLoadingEnd("Global");
 
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     // Debug
-                    //console.log("[On Post Deletion Failed] Payload.", action.payload);
+                    //console.log("[On Post Modification Failed] Payload.", action.payload);
 
                     setError({
                         name: action.payload.code,
@@ -43,10 +49,12 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    //console.log("[On Post Deletion Successful] Payload.", action.payload);
+                    //console.log("[On Post Modification Successful] Payload.", action.payload);
 
-                    if (onAfterDeleteCallback)
-                        onAfterDeleteCallback();
+                    setCommentContent("");
+
+                    if (onAfterModifyCallback)
+                        onAfterModifyCallback();
 
                     if (onCloseModalCallback)
                         onCloseModalCallback();
@@ -59,33 +67,31 @@ export default function DeletePostModal({ show, post, onCloseModalCallback, onAf
         <>
             <Modal show={show} onHide={onCloseModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Post Deletion?</Modal.Title>
+                    <Modal.Title>Modify Tweet Comment</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="postContent">
-                            <Form.Control disabled
-                                placeholder="What is happening?!"
+                            <Form.Control required
+                                placeholder="Leave your comment here?!"
                                 as="textarea"
                                 rows={3}
-                                value={post ? post.post_content : ""} />
+                                value={commentContent}
+                                onChange={(event) => setCommentContent(event.target.value)} />
                         </Form.Group>
                     </Form>
                     {/* Error Message Highlight */}
                     {
                         error ? (
                             <p className="fs-6 text-danger">
-                                Something went wrong with the post deletion process. (Error: {error.name}, Code: {error.code})
+                                Something went wrong with the comment modification process. (Error: {error.name}, Code: {error.code})
                             </p>
                         ) : null
                     }
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" className="rounded-pill" onClick={onDeletePost}>
-                        Yes
-                    </Button>
-                    <Button variant="primary" className="rounded-pill" onClick={onCloseModal}>
-                        No
+                    <Button variant="primary" className="rounded-pill" onClick={onModifyExistingComment}>
+                        Re-Tweet
                     </Button>
                 </Modal.Footer>
             </Modal>

@@ -58,12 +58,12 @@ export async function callServerAPI(subURL, method = "GET", body = {},
         }
 
         // Debug
-        console.log("[On API Request Successful] Result.", result);
+        //console.log("[On API Request Successful] Result.", result);
 
         const data = result.data;
         if (result.status === 200 || result.status === 201) {
             if (onSuccessfulCallback)
-                onSuccessfulCallback(result.status === 201 ? null : data.clientData);
+                onSuccessfulCallback(result.status === 201 ? null : data.client_data);
         }
         else {
             if (onFailedCallback)
@@ -78,7 +78,7 @@ export async function callServerAPI(subURL, method = "GET", body = {},
     }
     catch (error) {
         // Debug
-        console.log("[On API Request Failed] Error.", error);
+        //console.log("[On API Request Failed] Error.", error);
 
         // End Loader class at the end of an API.
         //onAPIEnd();

@@ -93,6 +93,8 @@ export default function AuthPage() {
             (action) => {
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
+                    onLoadingEnd("Global");
+                    
                     // Debug
                     //console.log("[On Registration Failed] Payload.", action.payload);
 
@@ -100,7 +102,6 @@ export default function AuthPage() {
                         name: action.payload.code,
                         code: action.payload.status
                     });
-                    onLoadingEnd("Global");
                 }
                 // On Promise Fulfilled
                 else {
@@ -132,19 +133,20 @@ export default function AuthPage() {
 
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
+                    onLoadingEnd("Global");
+
                     // Debug
                     //console.log("[Login Failed] Payload.", action.payload)
-                    
+
                     setError({
                         name: action.payload.code,
                         code: action.payload.status
                     });
-                    onLoadingEnd("Global");
                 }
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    console.log("[Login Successful] Payload.", action.payload);
+                    //console.log("[Login Successful] Payload.", action.payload);
 
                     onFetchUserProfileInfo();
                 }
@@ -158,6 +160,8 @@ export default function AuthPage() {
 
         dispatch(getUserInfo()).then(
             (action) => {
+                onLoadingEnd("Global");
+
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     // Debug
@@ -170,7 +174,6 @@ export default function AuthPage() {
                 }
                 // On Promise Fulfilled
                 else {
-                    onLoadingEnd("Global");
 
                     // Debug
                     console.log("[User Info Succeeded] Payload.", action.payload);

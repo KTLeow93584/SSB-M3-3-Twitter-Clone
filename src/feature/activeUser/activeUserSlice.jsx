@@ -125,11 +125,11 @@ const activeUserSlice = createSlice({
             // Debug
             //console.log("[On Login] Payload.", action.payload);
 
-            updateSessionToken(action.payload.clientData.token);
+            updateSessionToken(action.payload.client_data.token);
 
             return {
                 user: null,
-                token: action.payload.clientData.token
+                token: action.payload.client_data.token
             };
         });
 
@@ -149,13 +149,13 @@ const activeUserSlice = createSlice({
 
             return {
                 user: {
-                    first_name: action.payload.clientData.first_name,
-                    last_name: action.payload.clientData.last_name,
-                    profile_image: action.payload.clientData.profile_image,
-                    follower_count: action.payload.clientData.follower_count,
-                    following_count: action.payload.clientData.following_count,
-                    joined_at_month: action.payload.clientData.joined_at_month,
-                    joined_at_year: action.payload.clientData.joined_at_year
+                    first_name: action.payload.client_data.first_name,
+                    last_name: action.payload.client_data.last_name,
+                    profile_image: action.payload.client_data.profile_image,
+                    follower_count: action.payload.client_data.follower_count,
+                    following_count: action.payload.client_data.following_count,
+                    joined_at_month: action.payload.client_data.joined_at_month,
+                    joined_at_year: action.payload.client_data.joined_at_year
                 },
                 token: state.token
             };
@@ -167,9 +167,9 @@ const activeUserSlice = createSlice({
 
             return {
                 user: {
-                    first_name: action.payload.clientData.first_name,
-                    last_name: action.payload.clientData.last_name,
-                    profile_image: action.payload.clientData.profile_image,
+                    first_name: action.payload.client_data.first_name,
+                    last_name: action.payload.client_data.last_name,
+                    profile_image: action.payload.client_data.profile_image,
                     follower_count: state.user.follower_count,
                     following_count: state.user.following_count,
                     joined_at_month: state.user.joined_at_month,
