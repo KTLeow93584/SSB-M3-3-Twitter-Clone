@@ -11,7 +11,6 @@ import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 
-import { callServerAPI } from '../apis/authApi.jsx';
 import { updateUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
 import NavigationPanel from '../components/NavigationPanel.jsx';
 // ==============================================

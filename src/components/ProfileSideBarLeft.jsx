@@ -1,5 +1,6 @@
 // =========================================
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
@@ -25,7 +26,10 @@ export default function ProfileSideBarLeft({ onLogoutCallback }) {
     const onMoveToProfileCallback = () => {
         navigate("/profile");
     };
-
+    // ===========================================
+    const activeUserObj = useSelector((state) => state.activeUser);
+    const activeUser = activeUserObj.user;
+    // ===========================================
     return (
         <Col className="col-md-3 col-lg-3 col-3 d-flex flex-column justify-content-start align-items-start"
             style={{ position: "sticky", top: 0 }}>
@@ -48,7 +52,7 @@ export default function ProfileSideBarLeft({ onLogoutCallback }) {
             </Button>
 
             <NewPostModal show={showNewPostModal} onCloseModalCallback={onCloseNewPostModal} />
-            <ChatbotModal show={showChatbot} onCloseModalCallback={onCloseChatbotModal} />
+            <ChatbotModal show={showChatbot} user={activeUser} onCloseModalCallback={onCloseChatbotModal} />
         </Col>
     );
 }
