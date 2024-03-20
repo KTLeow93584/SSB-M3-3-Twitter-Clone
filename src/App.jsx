@@ -17,6 +17,7 @@ import EditProfile from './pages/EditProfile.jsx';
 import './App.css';
 
 import { store, persistor } from './store.jsx';
+import { AuthProvider } from './contexts/AuthProvider.jsx';
 // =========================================
 export function Layout() {
   return (
@@ -30,53 +31,55 @@ export function Layout() {
 function App() {
   return (
     <Container fluid className="main-container m-0 p-0">
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={
-                  <GuestAuth>
-                    <AuthPage />
-                  </GuestAuth>
-                } />
+      <AuthProvider>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={
+                    <GuestAuth>
+                      <AuthPage />
+                    </GuestAuth>
+                  } />
 
-                <Route element={
-                  <GuestAuth>
-                    <AuthPage />
-                  </GuestAuth>
-                } path="/login" />
+                  <Route element={
+                    <GuestAuth>
+                      <AuthPage />
+                    </GuestAuth>
+                  } path="/login" />
 
-                <Route element={
-                  <UserAuth>
-                    <EditProfile />
-                  </UserAuth>
-                } path="/edit" />
+                  <Route element={
+                    <UserAuth>
+                      <EditProfile />
+                    </UserAuth>
+                  } path="/edit" />
 
-                <Route element={
-                  <UserAuth>
-                    <ProfilePage />
-                  </UserAuth>
-                } path="/profile" />
+                  <Route element={
+                    <UserAuth>
+                      <ProfilePage />
+                    </UserAuth>
+                  } path="/profile" />
 
-                <Route element={
-                  <UserAuth>
-                    <ViewPost />
-                  </UserAuth>
-                } path="/post/:id" />
+                  <Route element={
+                    <UserAuth>
+                      <ViewPost />
+                    </UserAuth>
+                  } path="/post/:id" />
 
-                <Route element={
-                  <UserAuth>
-                    <EditProfile />
-                  </UserAuth>
-                } path="/editProfile" />
+                  <Route element={
+                    <UserAuth>
+                      <EditProfile />
+                    </UserAuth>
+                  } path="/editProfile" />
 
-                <Route path="/*" element={<AuthPage />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </PersistGate>
-      </Provider>
+                  <Route path="/*" element={<AuthPage />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </PersistGate>
+        </Provider>
+      </AuthProvider>
     </Container>
   );
 }

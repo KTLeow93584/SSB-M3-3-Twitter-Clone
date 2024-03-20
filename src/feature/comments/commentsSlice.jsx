@@ -42,7 +42,6 @@ export const createNewComment = createAsyncThunk(
 export const updateComment = createAsyncThunk(
     "post/comment/modify",
     async (params, api) => {
-        console.log("Params", params);
         // Prepare data to be sent to API.
         const data = {
             comment_id: params.comment_id,
@@ -126,7 +125,7 @@ const commentsSlice = createSlice({
         // Deleting an existing comment.
         builder.addCase(deleteComment.fulfilled, (state, action) => {
             // Debug
-            console.log("[Delete an Existing Comment] Payload.", action.payload);
+            //console.log("[Delete an Existing Comment] Payload.", action.payload);
 
             const commentIndex = state.comments.findIndex((comment) => comment.comment_id === action.payload.client_data.comment_id);
             state.comments.splice(commentIndex, 1);

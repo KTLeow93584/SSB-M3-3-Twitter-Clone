@@ -26,6 +26,7 @@ export async function callServerAPI(subURL, method = "GET", body = {},
 
     // Debug
     //console.log("[On API Request] URL:", fullURL);
+
     try {
         let result = null;
         const headers = {
@@ -106,7 +107,7 @@ export async function callTPServerAPI(url, method = "GET", headers = {}, body = 
     onSuccessfulCallback = null, onFailedCallback = null) {
     // Debug
     //console.log("[On Third Party API Request] URL:", url);
-    
+
     try {
         let result = null;
 

@@ -1,16 +1,13 @@
 import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { getSessionToken } from '../apis/authApi.jsx';
 
 export default function RequireAuth({ children }) {
-    // ===========================
-    const userObj = useSelector((state) => state.activeUser);
-    const user = userObj.user;
-    const token = userObj.token;
+    const token = getSessionToken();
 
     // Debug
-    //console.log("[Page Authentication - Only Accessible to Guests] User Profile.", user);
+    //console.log("[Page Authentication - Only Accessible to Guests] Session Token.", token);
 
-    if (user !== null && user !== undefined && token !== null && token !== undefined)
+    if (token)
         return <Navigate to="/profile" replace />;
 
     return children;

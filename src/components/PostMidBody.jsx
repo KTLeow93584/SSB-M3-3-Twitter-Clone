@@ -33,6 +33,8 @@ export default function PostMidBody() {
     // ===========================================
     const [likeLoaderVisibility, setLikeLoaderVisibility] = useState(false);
     // ===========================================
+    const [userId, setUserId] = useState(0);
+
     const [post, setPost] = useState(null);
     const postID = useParams().id;
     const [postLoaderVisibility, setPostLoaderVisibility] = useState(false);
@@ -57,6 +59,8 @@ export default function PostMidBody() {
 
                         setPost(action.payload.client_data.post);
                         setPostDate(new Date(action.payload.client_data.post.created_at));
+                        setUserId(action.payload.client_data.user.user_id);
+
                         dispatch(loadCommentsFromPostData({ comments: action.payload.client_data.comments }));
                     }
                 }
@@ -115,7 +119,7 @@ export default function PostMidBody() {
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    console.log("[On Comment Creation Successful] Payload.", action.payload);
+                    //console.log("[On Comment Creation Successful] Payload.", action.payload);
 
                     setCommentInput("");
 
@@ -376,7 +380,7 @@ export default function PostMidBody() {
                                 comments.map((comment, index) => (
                                     <div key={`comment-${index}`}>
                                         <CommentCard
-                                            post={post} comment={comment}
+                                            post={post} comment={comment} userId={userId}
                                             onModifyCallback={onModifyComment}
                                             onDeleteCallback={onDeleteComment} />
                                         <hr className="m-2" style={{ borderColor: "#777777" }} />
@@ -390,7 +394,20 @@ export default function PostMidBody() {
             </Col>
 
             <ModifyPostModal show={showModifyPost} post={post}
-                onCloseModalCallback={onCloseModifyPostModalCallback} />
+                onCloseModalCallback={onCloseModifyPostModalCallback}
+                onAfterModifyCallback={(result) => {
+                    const newPost = {
+                        post_id: post.post_id,
+                        post_content: result.post_content,
+                        liked: post.liked,
+                        like_count: post.like_count,
+                        comment_count: post.comment_count,
+                        views: post.views,
+                        created_at: post.created_at
+                    };
+
+                    setPost(newPost);
+                }} />
             <DeletePostModal show={showDeletePost} post={post}
                 onCloseModalCallback={onCloseDeletePostModalCallback}
                 onAfterDeleteCallback={() => navigate("/profile")} />

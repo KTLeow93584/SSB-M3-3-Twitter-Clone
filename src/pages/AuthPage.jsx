@@ -1,4 +1,5 @@
 // =========================================
+import { FacebookAuthProvider, GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -11,15 +12,20 @@ import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image';
 import Modal from 'react-bootstrap/Modal';
 
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 import { login, register, getUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
 
-import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { updateSessionToken } from "../apis/authApi.jsx";
 // =========================================
 export default function AuthPage() {
+    // ====================
     const loginImage = "https://sig1.co/img-twitter-1";
+    // ====================
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const auth = getAuth();
+    // ====================
     // Possible values: null (no modals to show), "Login", "Sign Up".
     const [modalShow, setModalShow] = useState(null);
     const onShowRegistrationModal = () => {
@@ -30,7 +36,7 @@ export default function AuthPage() {
         setActionCompletedMessage("");
         setModalShow("Login");
     };
-
+    // ====================
     const [error, setError] = useState(null);
     const [actionCompletedMessage, setActionCompletedMessage] = useState("");
 
@@ -82,9 +88,11 @@ export default function AuthPage() {
             passwordComplexityDesc = "Very Strong";
             break;
     }
-
+    // ====================
+    // Registration
     const onRegister = async (event) => {
         event.preventDefault();
+        setError(null);
         onLoadingStart("Global");
 
         // Debug
@@ -94,7 +102,7 @@ export default function AuthPage() {
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     onLoadingEnd("Global");
-                    
+
                     // Debug
                     //console.log("[On Registration Failed] Payload.", action.payload);
 
@@ -116,21 +124,17 @@ export default function AuthPage() {
             }
         );
     }
-
+    // ====================
+    // Login
     const onLogin = async (event) => {
         event.preventDefault();
+        setError(null);
         onLoadingStart("Global");
 
         // Debug
         //console.log("Login Event");
-        const apiEvent = new CustomEvent("On Loading Start");
-        window.dispatchEvent(apiEvent);
-
         dispatch(login({ email, password })).then(
             (action) => {
-                const apiEvent = new CustomEvent("On Loading End");
-                window.dispatchEvent(apiEvent);
-
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     onLoadingEnd("Global");
@@ -148,15 +152,105 @@ export default function AuthPage() {
                     // Debug
                     //console.log("[Login Successful] Payload.", action.payload);
 
-                    onFetchUserProfileInfo();
+                    onFetchUserProfileInfo(action.payload.client_data.token);
                 }
             }
         );
     }
 
-    const onFetchUserProfileInfo = async () => {
+    const googleProvider = new GoogleAuthProvider();
+    const onLoginGoogle = async (event) => {
+        event.preventDefault();
+        try {
+            const res = await signInWithPopup(auth, googleProvider);
+            const user = res.user;
+
+            // Debug
+            console.log("[On Google Login Successful] User.", user);
+            onLoadingStart("Global");
+
+            dispatch(login({
+                email: user.email,
+                social_name: user.displayName,
+                social_provider: res.providerId,
+                social_uid: user.uid,
+                social_profile_image: user.photoURL
+            })).then((action) => {
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    onLoadingEnd("Global");
+
+                    // Debug
+                    //console.log("[Login Failed] Payload.", action.payload)
+
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[Login Successful] Payload.", action.payload);
+
+                    onFetchUserProfileInfo(user.accessToken);
+                }
+            });
+        }
+        catch (error) {
+            // Debug
+            console.log("[On Google Login Failed] Error.", error);
+        }
+    }
+    // ====================
+    const facebookProvider = new FacebookAuthProvider();
+    const onLoginFacebook = async (event) => {
+        event.preventDefault();
+        try {
+            const res = await signInWithPopup(auth, facebookProvider);
+            const user = res.user;
+
+            // Debug
+            console.log("[On Facebook Login Successful] User.", user);
+            onLoadingStart("Global");
+
+            dispatch(login({
+                email: user.email,
+                social_name: user.displayName,
+                social_provider: res.providerId,
+                social_profile_image: user.photoURL
+            })).then((action) => {
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    onLoadingEnd("Global");
+
+                    // Debug
+                    //console.log("[Login Failed] Payload.", action.payload)
+
+                    setError({
+                        name: action.payload.code,
+                        code: action.payload.status
+                    });
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[Login Successful] Payload.", action.payload);
+
+                    onFetchUserProfileInfo(user.accessToken);
+                }
+            });
+        }
+        catch (error) {
+            // Debug
+            console.log("[On Facebook Login Failed] Error.", error);
+        }
+    }
+    // ====================
+    const onFetchUserProfileInfo = async (token) => {
         // Debug
         //console.log("Get User Profile Event");
+        updateSessionToken(token);
 
         dispatch(getUserInfo()).then(
             (action) => {
@@ -174,10 +268,9 @@ export default function AuthPage() {
                 }
                 // On Promise Fulfilled
                 else {
-
                     // Debug
-                    console.log("[User Info Succeeded] Payload.", action.payload);
-
+                    //console.log("[User Info Succeeded] Payload.", action.payload);
+                    
                     navigate("/profile");
                 }
             }
@@ -204,11 +297,11 @@ export default function AuthPage() {
                 <h2 className="my-5" style={{ fontSize: 31 }}>Join Twitter Today.</h2>
 
                 <Col className="col-sm-5 d-grid gap-2">
-                    <Button className="rounded-pill" variant="outline-dark">
+                    <Button className="rounded-pill" variant="outline-dark" onClick={onLoginGoogle}>
                         <i className="bi bi-google"></i> Sign up with Google
                     </Button>
-                    <Button className="rounded-pill" variant="outline-dark">
-                        <i className="bi bi-apple"></i> Sign up with Apple
+                    <Button className="rounded-pill" variant="outline-dark" onClick={onLoginFacebook}>
+                        <i className="bi bi-facebook"></i> Sign up with Facebook
                     </Button>
                     <p style={{ textAlign: "center" }}>or</p>
                     <Button className="rounded-pill" onClick={onShowRegistrationModal}>

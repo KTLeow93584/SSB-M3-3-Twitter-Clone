@@ -1,7 +1,5 @@
 
 // =========================================
-import { jwtDecode } from 'jwt-decode';
-
 import Col from 'react-bootstrap/Col';
 
 import Button from 'react-bootstrap/Button';
@@ -9,16 +7,9 @@ import Image from 'react-bootstrap/Image';
 
 import { getTimeFromNow } from '../data/time.js';
 
-import { getSessionToken } from '../apis/authApi.jsx';
-
 import defaultProfileImage from '../assets/images/user-profile-default.webp';
 // =========================================
-export default function CommentCard({ comment, onModifyCallback = null, onDeleteCallback = null }) {
-    // ===========================================
-    const sessionToken = getSessionToken();
-    const decodedToken = jwtDecode(sessionToken);
-    const userId = decodedToken.id;
-    // ===========================================
+export default function CommentCard({ comment, userId, onModifyCallback = null, onDeleteCallback = null }) {
     return (
         <Col className="col-12 d-flex align-items-start mb-1">
             <Image src={comment.user_profile_image ? comment.user_profile_image : defaultProfileImage}

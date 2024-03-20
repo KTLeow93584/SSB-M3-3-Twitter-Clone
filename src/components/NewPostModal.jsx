@@ -18,7 +18,7 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
     // =====================
     const dispatch = useDispatch();
 
-    const onSaveNewPost = () => {
+    const onCreateNewPost = () => {
         onLoadingStart("Global");
         setError(null);
 
@@ -39,7 +39,7 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    //console.log("[On Post Creation Successful] Payload.", action.payload);
+                    console.log("[On Post Creation Successful] Payload.", action.payload);
 
                     setPostContent("");
 
@@ -77,7 +77,7 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                     }
                 </Modal.Body>
                 <Modal.Footer className="d-flex flex-column align-items-center">
-                    <Button variant="primary" className="rounded-pill" onClick={onSaveNewPost}>
+                    <Button variant="primary" className="rounded-pill" onClick={onCreateNewPost}>
                         Tweet
                     </Button>
                 </Modal.Footer>

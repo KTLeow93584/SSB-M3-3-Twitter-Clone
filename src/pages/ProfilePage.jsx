@@ -1,4 +1,7 @@
+// =========================================
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -14,8 +17,13 @@ import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function ProfilePage() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const auth = getAuth();
 
     const onLogoutCallback = () => {
+        if (auth.currentUser)
+            auth.signOut();
+
         onLoadingStart("Global");
 
         dispatch(logout()).then(
@@ -32,6 +40,7 @@ export default function ProfilePage() {
                     // Debug
                     //console.log("[On Logout Successful] Payload.", action.payload);
                     updateSessionToken("");
+                    navigate("/");
                 }
             }
         );

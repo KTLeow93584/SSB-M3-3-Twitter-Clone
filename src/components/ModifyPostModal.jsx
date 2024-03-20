@@ -10,7 +10,7 @@ import { updatePost } from '../feature/posts/postsSlice.jsx';
 
 import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
-export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
+export default function ModifyPostModal({ show, post, onCloseModalCallback, onAfterModifyCallback = null }) {
     // =====================
     const [error, setError] = useState(null);
 
@@ -51,6 +51,9 @@ export default function ModifyPostModal({ show, post, onCloseModalCallback }) {
                     //console.log("[On Post Modification Successful] Payload.", action.payload);
 
                     setPostContent("");
+
+                    if (onAfterModifyCallback)
+                        onAfterModifyCallback(action.payload.client_data.post);
 
                     if (onCloseModalCallback)
                         onCloseModalCallback();

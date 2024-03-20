@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { callServerAPI, updateSessionToken } from '../../apis/authApi.jsx';
+import { callServerAPI } from '../../apis/authApi.jsx';
 
 // Async thunk for login.
 export const login = createAsyncThunk(
@@ -8,7 +8,10 @@ export const login = createAsyncThunk(
     async (params, api) => {
         const data = {
             email: params.email,
-            password: params.password
+            password: params.password,
+            social_name: params.social_name ? params.social_name : null,
+            social_provider: params.social_provider ? params.social_provider : null,
+            social_profile_image: params.social_profile_image ? params.social_profile_image : null
         };
 
         const result = await callServerAPI("login", "POST", data);
@@ -99,10 +102,7 @@ export const updateUserInfo = createAsyncThunk(
 // Slice
 const activeUserSlice = createSlice({
     name: "activeUser",
-    initialState: {
-        user: null,
-        token: null
-    },
+    initialState: { user: null },
     reducers: {
         updateFollowingCount: (state, action) => {
             return {
@@ -124,13 +124,6 @@ const activeUserSlice = createSlice({
         builder.addCase(login.fulfilled, (state, action) => {
             // Debug
             //console.log("[On Login] Payload.", action.payload);
-
-            updateSessionToken(action.payload.client_data.token);
-
-            return {
-                user: null,
-                token: action.payload.client_data.token
-            };
         });
 
         builder.addCase(logout.fulfilled, () => {
@@ -145,7 +138,7 @@ const activeUserSlice = createSlice({
 
         builder.addCase(getUserInfo.fulfilled, (state, action) => {
             // Debug
-            console.log("[On Acquire User Profile] Payload.", action.payload);
+            //console.log("[On Acquire User Profile] Payload.", action.payload);
 
             return {
                 user: {
