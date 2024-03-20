@@ -8,6 +8,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { callServerAPI } from '../apis/authApi.jsx';
 import { updateFollowingCount } from '../feature/activeUser/activeUserSlice.jsx';
 
+import SearchBar from './SearchBar.jsx';
 import UserCard from './UserCard.jsx';
 // =========================================
 export default function ProfileSideBarRight() {
@@ -34,7 +35,7 @@ export default function ProfileSideBarRight() {
                 setUsersLoaderVisibility(false);
 
                 // Debug
-                console.log("Error.", error);
+                //console.log("Error.", error);
             }
         );
     }, []);
@@ -60,6 +61,7 @@ export default function ProfileSideBarRight() {
     return (
         <Col className="col-4 d-none d-md-flex flex-column justify-content-start align-items-start"
             style={{ position: "sticky", top: 0 }}>
+            <SearchBar minWidth={100} />
             {
                 usersLoaderVisibility && (
                     <div className="d-flex w-100 justify-content-center mt-5">
