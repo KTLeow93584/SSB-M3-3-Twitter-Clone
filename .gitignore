@@ -23,8 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Firebase Environment Setup
-src/firebase.js
-
 # File storing our Environment Variables
 .env
