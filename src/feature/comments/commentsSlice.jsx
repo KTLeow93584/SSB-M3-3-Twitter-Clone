@@ -85,16 +85,20 @@ const commentsSlice = createSlice({
     name: "comments",
     initialState: { comments: [] },
     reducers: {
-        loadCommentsFromPostData: (state, action) => {
+        clearComments: (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
-            //console.log("[Preloading Comments from Fetching Post Data] Payload.", action.payload);
+            //console.log("[Clearing Comments Data] Payload.", action.payload);
 
-            state.comments = action.payload.comments;
+            return { comments: [] };
         }
     },
     extraReducers: (builder) => {
         // Fetch all Comments tied to a Post.
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
             //console.log("[Fetch Post's Comments] Payload.", action.payload);
 
@@ -103,16 +107,20 @@ const commentsSlice = createSlice({
 
         // Creating a new comment.
         builder.addCase(createNewComment.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
-            //console.log("[Create a New Comment] Payload.", action.payload);
+            console.log("[Create a New Comment] Payload.", action.payload);
 
             state.comments.unshift(action.payload.client_data.comment);
         });
 
         // Updating an existing comment.
         builder.addCase(updateComment.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
-            //console.log("[Modify an Existing Comment] Payload.", action.payload);
+            console.log("[Modify an Existing Comment] Payload.", action.payload);
 
             const commentIndex = state.comments.findIndex((comment) => comment.comment_id === action.payload.client_data.comment_id);
 
@@ -124,6 +132,8 @@ const commentsSlice = createSlice({
 
         // Deleting an existing comment.
         builder.addCase(deleteComment.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
             //console.log("[Delete an Existing Comment] Payload.", action.payload);
 
@@ -133,5 +143,5 @@ const commentsSlice = createSlice({
     }
 });
 
-export const { loadCommentsFromPostData } = commentsSlice.actions;
+export const { clearComments } = commentsSlice.actions;
 export default commentsSlice.reducer;

@@ -5,9 +5,9 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 
-import { getTimeFromNow } from '../data/time.js';
+import { getTimeFromNow } from '../../data/time.js';
 
-import defaultProfileImage from '../assets/images/user-profile-default.webp';
+import defaultProfileImage from '../../assets/images/user-profile-default.webp';
 // =========================================
 export default function CommentCard({ comment, userId, onModifyCallback = null, onDeleteCallback = null }) {
     return (

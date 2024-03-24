@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import { callServerAPI } from '../../apis/authApi.jsx';
 
 // Async thunk for login.
@@ -8,10 +7,12 @@ export const login = createAsyncThunk(
     async (params, api) => {
         const data = {
             email: params.email,
-            password: params.password,
+            password: params.password ? params.password : null,
             social_name: params.social_name ? params.social_name : null,
             social_provider: params.social_provider ? params.social_provider : null,
-            social_profile_image: params.social_profile_image ? params.social_profile_image : null
+            social_profile_image: params.social_profile_image ? params.social_profile_image : null,
+            social_access_token: params.social_access_token ? params.social_access_token : null,
+            social_refresh_token: params.social_refresh_token ? params.social_refresh_token : null
         };
 
         const result = await callServerAPI("login", "POST", data);
@@ -63,25 +64,12 @@ export const register = createAsyncThunk(
     }
 );
 
-// Async thunk for acquiring user info.
-export const getUserInfo = createAsyncThunk(
-    "user/get",
-    async (params, api) => {
-        const result = await callServerAPI("profile", "GET", null);
-
-        // API errored callback.
-        if (result.code)
-            return api.rejectWithValue({ code: result.code, status: result.request.status });
-        // API successful callback.
-        else
-            return result;
-    }
-);
-
 // Async thunk for updating user info.
 export const updateUserInfo = createAsyncThunk(
     "user/update",
     async (params, api) => {
+        console.log("Update User Info API called.");
+
         // Prepare data to be sent to API.
         const data = {
             first_name: params.first_name,
@@ -104,75 +92,65 @@ const activeUserSlice = createSlice({
     name: "activeUser",
     initialState: { user: null },
     reducers: {
-        updateFollowingCount: (state, action) => {
+        updateActiveUser: (state, action) => {
             return {
                 user: {
-                    first_name: state.user.first_name,
-                    last_name: state.user.last_name,
-                    profile_image: state.user.profile_image,
-                    follower_count: state.user.follower_count,
-                    following_count: action.payload.isAdd ? (state.user.following_count + 1) : (state.user.following_count - 1),
-                    joined_at_month: state.user.joined_at_month,
-                    joined_at_year: state.user.joined_at_year
-                },
-                token: state.token
+                    user_id: action.payload.client_data.user.user_id,
+                    first_name: action.payload.client_data.user.first_name,
+                    last_name: action.payload.client_data.user.last_name,
+                    profile_image: action.payload.client_data.user.profile_image,
+                    banner_image: action.payload.client_data.user.banner_image
+                }
             };
         }
     },
     extraReducers: (builder) => {
         // Fetch Posts By User
         builder.addCase(login.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
             //console.log("[On Login] Payload.", action.payload);
-        });
-
-        builder.addCase(logout.fulfilled, () => {
-            // Debug
-            //console.log("[On Logout] Payload.", action.payload);
-
-            return {
-                user: null,
-                token: null
-            };
-        });
-
-        builder.addCase(getUserInfo.fulfilled, (state, action) => {
-            // Debug
-            //console.log("[On Acquire User Profile] Payload.", action.payload);
 
             return {
                 user: {
-                    first_name: action.payload.client_data.first_name,
-                    last_name: action.payload.client_data.last_name,
-                    profile_image: action.payload.client_data.profile_image,
-                    follower_count: action.payload.client_data.follower_count,
-                    following_count: action.payload.client_data.following_count,
-                    joined_at_month: action.payload.client_data.joined_at_month,
-                    joined_at_year: action.payload.client_data.joined_at_year
-                },
-                token: state.token
+                    user_id: action.payload.client_data.user.user_id,
+                    first_name: action.payload.client_data.user.first_name,
+                    last_name: action.payload.client_data.user.last_name,
+                    profile_image: action.payload.client_data.user.profile_image,
+                    banner_image: action.payload.client_data.user.banner_image
+                }
             };
         });
 
+        builder.addCase(logout.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
+            // Debug
+            //console.log("[On Logout] Payload.", action.payload);
+
+            return { user: null };
+        });
+
         builder.addCase(updateUserInfo.fulfilled, (state, action) => {
+            if (!action.payload.success)
+                return state;
             // Debug
             //console.log("[On Update User Profile] Payload.", action.payload);
 
             return {
                 user: {
-                    first_name: action.payload.client_data.first_name,
-                    last_name: action.payload.client_data.last_name,
-                    profile_image: action.payload.client_data.profile_image,
-                    follower_count: state.user.follower_count,
-                    following_count: state.user.following_count,
-                    joined_at_month: state.user.joined_at_month,
-                    joined_at_year: state.user.joined_at_year
-                },
-                token: state.token
+                    user_id: state.user.user_id,
+                    first_name: action.payload.client_data.user.first_name,
+                    last_name: action.payload.client_data.user.last_name,
+                    profile_image: action.payload.client_data.user.profile_image,
+                    banner_image: action.payload.client_data.user.banner_image ?
+                        action.payload.client_data.user.banner_image : state.user.banner_image
+                }
             };
         });
     }
 });
 
-export const { updateFollowingCount } = activeUserSlice.actions;
+export const { updateFollowingCount, updateActiveUser } = activeUserSlice.actions;
 export default activeUserSlice.reducer;

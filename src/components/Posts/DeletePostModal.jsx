@@ -6,9 +6,9 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { deletePost } from '../feature/posts/postsSlice.jsx';
+import { deletePost } from '../../feature/posts/postsSlice.jsx';
 
-import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { onLoadingStart, onLoadingEnd } from '../../data/loaders.js';
 // =========================================
 export default function DeletePostModal({ show, post, onCloseModalCallback, onAfterDeleteCallback = null }) {
     // =====================

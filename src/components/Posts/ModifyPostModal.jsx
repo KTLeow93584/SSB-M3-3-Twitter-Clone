@@ -1,35 +1,44 @@
 // =========================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { createANewPost } from '../feature/posts/postsSlice.jsx';
+import { updatePost } from '../../feature/posts/postsSlice.jsx';
 
-import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { onLoadingStart, onLoadingEnd } from '../../data/loaders.js';
 // =========================================
-export default function NewPostModal({ show, onCloseModalCallback }) {
+export default function ModifyPostModal({ show, post, onCloseModalCallback, onAfterModifyCallback = null }) {
     // =====================
     const [error, setError] = useState(null);
+
+    const onCloseModal = () => {
+        setError(null);
+        if (onCloseModalCallback)
+            onCloseModalCallback();
+    };
     // =====================
-    const [postContent, setPostContent] = useState("");
+    const [postContent, setPostContent] = useState(post ? post.post_content : "");
+    useEffect(() => {
+        setPostContent(post ? post.post_content : "");
+    }, [post]);
     // =====================
     const dispatch = useDispatch();
 
-    const onCreateNewPost = () => {
+    const onModifyExistingPost = () => {
         onLoadingStart("Global");
         setError(null);
 
-        dispatch(createANewPost({ post_content: postContent })).then(
+        dispatch(updatePost({ post_id: post.post_id, post_content: postContent })).then(
             (action) => {
                 onLoadingEnd("Global");
 
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     // Debug
-                    //console.log("[On Post Creation Failed] Payload.", action.payload);
+                    //console.log("[On Post Modification Failed] Payload.", action.payload);
 
                     setError({
                         name: action.payload.code,
@@ -39,9 +48,12 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    console.log("[On Post Creation Successful] Payload.", action.payload);
+                    //console.log("[On Post Modification Successful] Payload.", action.payload);
 
                     setPostContent("");
+
+                    if (onAfterModifyCallback)
+                        onAfterModifyCallback(action.payload.client_data.post);
 
                     if (onCloseModalCallback)
                         onCloseModalCallback();
@@ -49,12 +61,12 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
             }
         );
     };
-
+    // =====================
     return (
         <>
-            <Modal show={show} onHide={onCloseModalCallback}>
+            <Modal show={show} onHide={onCloseModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Create A New Tweet Post</Modal.Title>
+                    <Modal.Title>Modify Tweet Post</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -70,15 +82,15 @@ export default function NewPostModal({ show, onCloseModalCallback }) {
                     {/* Error Message Highlight */}
                     {
                         error ? (
-                            <p className="fs-6 text-danger mt-3 mb-0 mx-0 p-0">
-                                Something went wrong with the post creation process. (Error: {error.name}, Code: {error.code})
+                            <p className="fs-6 text-danger">
+                                Something went wrong with the post modification process. (Error: {error.name}, Code: {error.code})
                             </p>
                         ) : null
                     }
                 </Modal.Body>
-                <Modal.Footer className="d-flex flex-column align-items-center">
-                    <Button variant="primary" className="rounded-pill" onClick={onCreateNewPost}>
-                        Tweet
+                <Modal.Footer>
+                    <Button variant="primary" className="rounded-pill" onClick={onModifyExistingPost}>
+                        Re-Tweet
                     </Button>
                 </Modal.Footer>
             </Modal>

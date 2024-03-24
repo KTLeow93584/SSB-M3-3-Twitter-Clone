@@ -8,7 +8,7 @@ export default function RequireAuth({ children }) {
     //console.log("[Page Authentication - Only Accessible to Guests] Session Token.", token);
 
     if (token)
-        return <Navigate to="/profile" replace />;
+        return <Navigate to={"/home"} replace />;
 
     return children;
 }

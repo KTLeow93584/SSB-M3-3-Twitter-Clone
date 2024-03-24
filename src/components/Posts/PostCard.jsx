@@ -10,10 +10,10 @@ import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import Spinner from 'react-bootstrap/Spinner';
 
-import { likeAPost, unlikeAPost } from '../feature/posts/postsSlice.jsx';
-import { getTimeFromNow } from '../data/time.js';
+import { likeAPost, unlikeAPost } from '../../feature/posts/postsSlice.jsx';
+import { getTimeFromNow } from '../../data/time.js';
 
-import defaultProfileImage from '../assets/images/user-profile-default.webp';
+import defaultProfileImage from '../../assets/images/user-profile-default.webp';
 // =========================================
 export default function ProfilePostCard({ post, userId, onModifyCallback = null, onDeleteCallback = null }) {
     // ===========================================
@@ -61,7 +61,7 @@ export default function ProfilePostCard({ post, userId, onModifyCallback = null,
             );
         }
     };
-    const onClickCommentsButton = () => navigate(`/post/${post.post_id}`);
+    const onClickCommentsButton = () => navigate(`/user/${userId}/post/${post.post_id}`);
 
     return (
         <Row className="mx-0 mt-3" style={{ borderBottom: "2px solid #d3d3d3" }}>

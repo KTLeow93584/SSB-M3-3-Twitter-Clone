@@ -6,20 +6,22 @@ import { getAuth } from 'firebase/auth';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
-import ProfileSideBarLeft from '../components/ProfileSideBarLeft.jsx';
-import ProfileMidBody from '../components/ProfileMidBody.jsx';
-import ProfileSideBarRight from '../components/ProfileSideBarRight.jsx';
+import ProfileSideBarLeft from '../components/Profile/ProfileSideBarLeft.jsx';
+import ProfileMidBody from '../components/Profile/ProfileMidBody.jsx';
+import ProfileSideBarRight from '../components/Profile/ProfileSideBarRight.jsx';
 
 import { updateSessionToken } from '../apis/authApi.jsx';
+
 import { logout } from '../feature/activeUser/activeUserSlice.jsx';
 
 import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
 // =========================================
 export default function ProfilePage() {
+    // ======================
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const auth = getAuth();
-
+    // ======================
     const onLogoutCallback = () => {
         if (auth.currentUser)
             auth.signOut();
@@ -45,7 +47,7 @@ export default function ProfilePage() {
             }
         );
     };
-
+    // ======================
     return (
         <>
             <Container fluid className="bg-light" style={{ flex: 1 }}>

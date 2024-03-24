@@ -8,7 +8,7 @@ export default function RequireAuth({ children }) {
     //console.log("[Page Authentication - User Required] Session Token.", token);
 
     if (!token)
-        return <Navigate to="/" replace />;
+        return <Navigate to="/login" replace />;
 
     return children;
 }

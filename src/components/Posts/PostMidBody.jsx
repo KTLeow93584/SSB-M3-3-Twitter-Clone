@@ -1,7 +1,7 @@
 // =========================================
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Col from 'react-bootstrap/Col';
 
@@ -13,85 +13,76 @@ import Spinner from 'react-bootstrap/Spinner';
 import ModifyPostModal from './ModifyPostModal.jsx';
 import DeletePostModal from './DeletePostModal.jsx';
 
-import ModifyCommentModal from './ModifyCommentModal.jsx';
-import DeleteCommentModal from './DeleteCommentModal.jsx';
+import ModifyCommentModal from '../Comments/ModifyCommentModal.jsx';
+import DeleteCommentModal from '../Comments/DeleteCommentModal.jsx';
 
-import CommentCard from '../components/CommentCard.jsx';
+import CommentCard from '../Comments/CommentCard.jsx';
 
-import { formatDate, formatTime } from '../data/time.js';
-import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { formatDate, formatTime } from '../../data/time.js';
+import { onLoadingStart, onLoadingEnd } from '../../data/loaders.js';
 
-import { fetchPostsByUser, fetchPostData, likeAPost, unlikeAPost } from '../feature/posts/postsSlice.jsx';
-import { createNewComment, loadCommentsFromPostData } from '../feature/comments/commentsSlice.jsx';
+import { likeAPost, unlikeAPost } from '../../feature/posts/postsSlice.jsx';
+import { createNewComment, clearComments, fetchPostComments } from '../../feature/comments/commentsSlice.jsx';
 
-import defaultProfileImage from '../assets/images/user-profile-default.webp';
+import defaultProfileImage from '../../assets/images/user-profile-default.webp';
 // =========================================
-export default function PostMidBody() {
-    // ===========================================
+export default function PostMidBody({ postId }) {
+    // ============
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    // ===========================================
-    const [likeLoaderVisibility, setLikeLoaderVisibility] = useState(false);
-    // ===========================================
-    const [userId, setUserId] = useState(0);
-
-    const [post, setPost] = useState(null);
-    const postID = useParams().id;
-    const [postLoaderVisibility, setPostLoaderVisibility] = useState(false);
-
+    // ============
+    const user = useSelector((state) => state.viewedUser.user);
+    // ============
     const posts = useSelector((state) => state.posts.posts);
+    const post = posts.find((postIter) => postIter.post_id === postId);
+    const comments = useSelector((state) => state.comments.comments);
+
+    const [postLoaderVisibility, setPostLoaderVisibility] = useState(false);
+    const [commentLoaderVisibility, setCommentLoaderVisibility] = useState(false);
 
     useEffect(() => {
-        const onFetchPostData = () => {
-            dispatch(fetchPostData({ post_id: postID })).then(
+        if (comments.length <= 0 && post) {
+            setPostLoaderVisibility(true);
+
+            dispatch(fetchPostComments({ post_id: postId })).then(
                 (action) => {
                     setPostLoaderVisibility(false);
 
                     // On Promise Rejected/Failed, Error Exception.
                     if (action.error) {
                         // Debug
-                        //console.log("[Fetch User's Specific Post] Payload.", action.payload);
+                        //console.log("[Post Info Failed] Payload.", action.payload);
                     }
                     // On Promise Fulfilled
                     else {
                         // Debug
-                        //console.log("[Fetch User's Specific Post] Payload.", action.payload);
+                        console.log("[Post Info Succeeded] Payload.", action.payload);
 
-                        setPost(action.payload.client_data.post);
-                        setPostDate(new Date(action.payload.client_data.post.created_at));
-                        setUserId(action.payload.client_data.user.user_id);
+                        setCommentLoaderVisibility(true);
 
-                        dispatch(loadCommentsFromPostData({ comments: action.payload.client_data.comments }));
-                    }
-                }
-            );
-        };
+                        dispatch(fetchPostComments({ post_id: postId })).then(
+                            (action) => {
+                                setCommentLoaderVisibility(false);
 
-        setPostLoaderVisibility(true);
-
-        if (posts.length <= 0) {
-            dispatch(fetchPostsByUser()).then(
-                (action) => {
-                    // On Promise Rejected/Failed, Error Exception.
-                    if (action.error) {
-                        // Debug
-                        //console.log("[Fetch User Posts Failed] Payload.", action.payload);
-                    }
-                    // On Promise Fulfilled
-                    else {
-                        // Debug
-                        //console.log("[Fetch User Posts Succeeded] Payload.", action.payload);
-                        onFetchPostData();
+                                // On Promise Rejected/Failed, Error Exception.
+                                if (action.error) {
+                                    // Debug
+                                    //console.log("[GET Comments Failed] Payload.", action.payload);
+                                }
+                                // On Promise Fulfilled
+                                else {
+                                    // Debug
+                                    //console.log("[GET Comments Succeeded] Payload.", action.payload);
+                                }
+                            }
+                        );
                     }
                 }
             );
         }
-        else
-            onFetchPostData();
-    }, [dispatch, postID]);
-    // ===========================================
+    }, [dispatch, comments.length, post, postId]);
+    // ============
     // List of existing comments queried that's tied to the post.
-    const comments = useSelector((state) => state.comments.comments);
     const commentTextInputRef = useRef(null);
 
     // New Comment to upload to post.
@@ -102,7 +93,7 @@ export default function PostMidBody() {
         event.preventDefault();
         onLoadingStart("Global");
 
-        dispatch(createNewComment({ post_id: postID, comment_content: commentInput })).then(
+        dispatch(createNewComment({ post_id: postId, comment_content: commentInput })).then(
             (action) => {
                 onLoadingEnd("Global");
 
@@ -122,17 +113,6 @@ export default function PostMidBody() {
                     //console.log("[On Comment Creation Successful] Payload.", action.payload);
 
                     setCommentInput("");
-
-                    const newPost = {
-                        post_id: post.post_id,
-                        post_content: post.post_content,
-                        liked: post.liked,
-                        like_count: post.like_count,
-                        comment_count: action.payload.client_data.post.comment_count,
-                        views: post.views,
-                        created_at: post.created_at
-                    };
-                    setPost(newPost);
                 }
             }
         );
@@ -150,10 +130,8 @@ export default function PostMidBody() {
             commentTextInputRef.current.style.height = `${commentTextInputRef.current.scrollHeight}px`;
         }
     }
-    // ===========================================
+    // ============
     // Posts Modifications/Deletions
-    const [postDate, setPostDate] = useState(new Date());
-
     const [showModifyPost, setShowModifyPost] = useState(false);
     const onCloseModifyPostModalCallback = () => setShowModifyPost(false);
     const onShowModifyPostModalCallback = () => setShowModifyPost(true);
@@ -184,8 +162,13 @@ export default function PostMidBody() {
         setTargetComment(currentComment);
         onShowDeleteCommentModalCallback();
     };
-    // ===========================================
-    const onClickReturnToProfile = () => navigate("/profile");
+    // ============
+    const [likeLoaderVisibility, setLikeLoaderVisibility] = useState(false);
+
+    const onClickReturnToProfile = () => {
+        dispatch(clearComments());
+        navigate(`/profile/${user.user_id}`);
+    };
     const onClickLikeButton = () => {
         if (!post)
             return;
@@ -193,7 +176,7 @@ export default function PostMidBody() {
         setLikeLoaderVisibility(true);
 
         if (post.liked === "False") {
-            dispatch(likeAPost({ post_id: postID })).then(
+            dispatch(likeAPost({ post_id: postId })).then(
                 (action) => {
                     setLikeLoaderVisibility(false);
 
@@ -223,7 +206,7 @@ export default function PostMidBody() {
             );
         }
         else {
-            dispatch(unlikeAPost({ post_id: postID })).then(
+            dispatch(unlikeAPost({ post_id: postId })).then(
                 (action) => {
                     setLikeLoaderVisibility(false);
                     // On Promise Rejected/Failed, Error Exception.
@@ -252,10 +235,7 @@ export default function PostMidBody() {
             );
         }
     };
-    // ===========================================
-    const activeUserObj = useSelector((state) => state.activeUser);
-    const activeUser = activeUserObj.user;
-    // ===========================================
+    // ============
     return (
         <>
             <Col className="col-md-5 col-9 bg-light m-0 p-0 bg-secondary" style={{ border: "1px solid lightgrey", minHeight: "100vh" }}>
@@ -270,16 +250,16 @@ export default function PostMidBody() {
                 { /* --------------------------------------- */}
                 {/* Post Header (Poster's Identity, Profile Image, Modify/Delete Post Features) */}
                 <div className="d-flex align-items-center mt-2 mb-3 ms-3">
-                    <Image src={activeUser.profile_image ? activeUser.profile_image : defaultProfileImage}
+                    <Image src={user.profile_image ? user.profile_image : defaultProfileImage}
                         onClick={onClickReturnToProfile}
                         className="me-3"
                         style={{ minWidth: "32px", minHeight: "32px", maxWidth: "48px", maxHeight: "48px", width: "100%", height: "auto", cursor: "pointer" }} />
                     <div>
                         <p className="fs-6 fw-bold m-0 p-0">
-                            {activeUser.first_name + " " + activeUser.last_name}
+                            {user.first_name + " " + user.last_name}
                         </p>
                         <p className="m-0 p-0" style={{ color: "#444444", fontSize: "0.8em" }}>
-                            @{(activeUser.first_name + activeUser.last_name).replace(" ", "")}
+                            @{(user.first_name + user.last_name).replace(" ", "")}
                         </p>
                     </div>
                     {/* Post Modification/Deletion Tools */}
@@ -319,7 +299,9 @@ export default function PostMidBody() {
                                 </div>
                                 <div className="d-flex mb-2">
                                     <p className="m-0 p-0" style={{ fontSize: "0.8em" }}>
-                                        {formatTime(postDate, true)} • {formatDate(postDate, true)} • <span className="fw-bold">{post.views}</span> views
+                                        {formatTime(new Date(post.created_at), true)} • {formatDate(new Date(post.created_at), true)}
+                                        <span className="fw-bold"> • {post.views}</span>
+                                        <span> views</span>
                                     </p>
                                 </div>
                             </div>
@@ -358,7 +340,7 @@ export default function PostMidBody() {
                             {/* Post a reply row */}
                             <Form onSubmit={onSubmitNewComment}>
                                 <Col className="col-12 d-flex align-items-center rounded bg-light" style={{ border: "none" }}>
-                                    <Image src={activeUser.profile_image ? activeUser.profile_image : defaultProfileImage}
+                                    <Image src={user.profile_image ? user.profile_image : defaultProfileImage}
                                         className="ms-2 me-3"
                                         style={{ minWidth: "32px", minHeight: "32px", maxWidth: "48px", maxHeight: "48px", width: "100%", height: "auto", cursor: "pointer" }} />
                                     <Form.Control required as="textarea" value={commentInput}
@@ -377,15 +359,28 @@ export default function PostMidBody() {
 
                             {/* Comments rows */}
                             {
-                                comments.map((comment, index) => (
-                                    <div key={`comment-${index}`}>
-                                        <CommentCard
-                                            post={post} comment={comment} userId={userId}
-                                            onModifyCallback={onModifyComment}
-                                            onDeleteCallback={onDeleteComment} />
-                                        <hr className="m-2" style={{ borderColor: "#777777" }} />
+                                commentLoaderVisibility && (
+                                    <div className="d-flex justify-content-center mt-5">
+                                        <Spinner animation="border" variant="primary" />
                                     </div>
-                                ))
+                                )
+                            }
+                            {
+                                (
+                                    commentLoaderVisibility ? null :
+                                        (
+                                            comments.length > 0 ?
+                                                comments.map((comment, index) => (
+                                                    <div key={`comment-${index}`}>
+                                                        <CommentCard
+                                                            post={post} comment={comment} userId={user.user_id}
+                                                            onModifyCallback={onModifyComment}
+                                                            onDeleteCallback={onDeleteComment} />
+                                                        <hr className="m-2" style={{ borderColor: "#777777" }} />
+                                                    </div>
+                                                )) : null
+                                        )
+                                )
                             }
                         </>
                     ) : null)
@@ -394,41 +389,15 @@ export default function PostMidBody() {
             </Col>
 
             <ModifyPostModal show={showModifyPost} post={post}
-                onCloseModalCallback={onCloseModifyPostModalCallback}
-                onAfterModifyCallback={(result) => {
-                    const newPost = {
-                        post_id: post.post_id,
-                        post_content: result.post_content,
-                        liked: post.liked,
-                        like_count: post.like_count,
-                        comment_count: post.comment_count,
-                        views: post.views,
-                        created_at: post.created_at
-                    };
-
-                    setPost(newPost);
-                }} />
+                onCloseModalCallback={onCloseModifyPostModalCallback} />
             <DeletePostModal show={showDeletePost} post={post}
                 onCloseModalCallback={onCloseDeletePostModalCallback}
-                onAfterDeleteCallback={() => navigate("/profile")} />
+                onAfterDeleteCallback={onClickReturnToProfile} />
 
             <ModifyCommentModal show={showModifyComment} comment={targetComment}
                 onCloseModalCallback={onCloseModifyCommentModalCallback} />
             <DeleteCommentModal show={showDeleteComment} post={post} comment={targetComment}
-                onCloseModalCallback={onCloseDeleteCommentModalCallback}
-                onAfterDeleteCallback={(result) => {
-                    const newPost = {
-                        post_id: post.post_id,
-                        post_content: post.post_content,
-                        liked: post.liked,
-                        like_count: post.like_count,
-                        comment_count: result.comment_count,
-                        views: post.views,
-                        created_at: post.created_at
-                    };
-
-                    setPost(newPost);
-                }} />
+                onCloseModalCallback={onCloseDeleteCommentModalCallback} />
         </>
     );
 }

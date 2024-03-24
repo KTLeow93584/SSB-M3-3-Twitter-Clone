@@ -1,5 +1,5 @@
 // ==============================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,7 +11,10 @@ import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 
-import { updateUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
+import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { updateActiveUser, updateUserInfo } from '../feature/activeUser/activeUserSlice.jsx';
+import { clearViewedUserProfile, getPersonalInfo } from '../feature/viewedUser/viewedUserSlice.jsx';
+
 import NavigationPanel from '../components/NavigationPanel.jsx';
 // ==============================================
 export default function EditProfile() {
@@ -23,12 +26,12 @@ export default function EditProfile() {
     const user = activeUserObj.user;
 
     // Debug
-    //console.log("[Edit Profile] User.", user);
-    // ===================================================
-    const [firstName, setFirstName] = useState(user.first_name);
-    const [lastName, setLastName] = useState(user.last_name);
+    console.log("[Edit Profile] User.", user);
+    // ===========================
+    const [firstName, setFirstName] = useState(user ? user.first_name : "");
+    const [lastName, setLastName] = useState(user ? user.last_name : "");
 
-    const [image, setImage] = useState(user.profile_image ? user.profile_image : null);
+    const [image, setImage] = useState(user && user.profile_image ? user.profile_image : null);
     const [isCorrectImageFormat, setIsCorrectImageFormat] = useState(true);
 
     const updateProfilePicture = (event) => {
@@ -66,21 +69,54 @@ export default function EditProfile() {
 
     const onUpdateUserProfile = (event) => {
         event.preventDefault();
+        onLoadingStart("Global");
 
         dispatch(updateUserInfo({ first_name: firstName, last_name: lastName, profile_image: image })).then(
-            // On Promise Fulfilled
-            () => {
-                // Debug
-                //console.log("Successfully Updated User Profile.");
+            (action) => {
+                onLoadingEnd("Global");
 
-                navigate("/profile");
-            },
-            // On Promise Rejected/Failed
-            (error) => {
-                console.log("Failed to Update User Profile.", error);
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[User Info Update Failed] Payload.", action.payload);
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[User Info Update Successful] Payload.", action.payload);
+
+                    dispatch(clearViewedUserProfile());
+                    navigate(`/profile/${user.user_id}`);
+                }
             }
         );
     };
+    // ===========================
+    useEffect(() => {
+        onLoadingStart("Global");
+        dispatch(getPersonalInfo()).then(
+            (action) => {
+                onLoadingEnd("Global");
+
+                // On Promise Rejected/Failed, Error Exception.
+                if (action.error) {
+                    // Debug
+                    //console.log("[User Info Failed] Payload.", action.payload);
+                }
+                // On Promise Fulfilled
+                else {
+                    // Debug
+                    //console.log("[User Info Succeeded] Payload.", action.payload);
+
+                    dispatch(updateActiveUser(action.payload));
+
+                    setFirstName(action.payload.client_data.user.first_name);
+                    setLastName(action.payload.client_data.user.last_name);
+                    setImage(action.payload.client_data.user.profile_image);
+                }
+            }
+        );
+    }, [dispatch]);
     // ===========================
     return (
         <>

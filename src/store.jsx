@@ -13,11 +13,13 @@ import {
 import storage from 'redux-persist/lib/storage'
 
 import activeUserReducer from './feature/activeUser/activeUserSlice.jsx';
+import viewedUserReducer from './feature/viewedUser/viewedUserSlice.jsx';
 import postsReducer from './feature/posts/postsSlice.jsx';
 import commentsReducer from './feature/comments/commentsSlice.jsx';
 
 const reducers = combineReducers({
     activeUser: activeUserReducer,
+    viewedUser: viewedUserReducer,
     posts: postsReducer,
     comments: commentsReducer
 });
@@ -25,8 +27,8 @@ const reducers = combineReducers({
 const persistConfig = {
     key: "root",
     storage,
-    blacklist: ["posts", "comments"],
-    whitelist: ["activeUser"]
+    blacklist: ["activeUser", "posts", "comments", "viewedUser"],
+    whitelist: []
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
@@ -38,8 +40,8 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-            },
-        }),
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+            }
+        })
 });
 export const persistor = persistStore(store);

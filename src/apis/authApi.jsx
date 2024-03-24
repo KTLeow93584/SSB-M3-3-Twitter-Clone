@@ -1,16 +1,28 @@
 // ====================================================================
 import axios from "axios";
+
+import { networkErrorCodeMessages, errorNoAuthEventName, errorServerEventName } from '../data/error-loggers.js';
+import { onLoadingEnd } from '../data/loaders.js';
+// ====================================================================
 const inhouseServerMainURL = "https://ca9aecee-4d16-4734-9572-bda971ac7cfc-00-2x0vw49owtfq6.picard.replit.dev/";
 // ====================================================================
 let sessionToken = null;
 
 export function updateSessionToken(token) {
     sessionToken = token;
-    return token;
 }
 
 export function getSessionToken() {
     return sessionToken;
+}
+// ====================================================================
+let sessionDeviceId = null;
+
+export function updateDeviceID(id) {
+    sessionDeviceId = id;
+
+    // Debug
+    //console.log("[Session Device ID] Set to:", id);
 }
 // ====================================================================
 /**
@@ -21,7 +33,7 @@ export function getSessionToken() {
  * @param function      onFailedCallback           Callback when API failed.
  */
 export async function callServerAPI(subURL, method = "GET", body = {},
-    onSuccessfulCallback = null, onFailedCallback = null) {
+    onSuccessfulCallback = null, onFailedCallback = null, onErrorCallback = null) {
     const fullURL = inhouseServerMainURL + subURL;
 
     // Debug
@@ -33,7 +45,8 @@ export async function callServerAPI(subURL, method = "GET", body = {},
             "Content-Type": "application/json",
             "Accept": "*/*",
             /*"User-Agent": "React.js Web",*/
-            "Authorization": sessionToken ? ("Bearer " + sessionToken) : null
+            "Authorization": sessionToken ? ("Bearer " + sessionToken) : null,
+            "Device": sessionDeviceId
         };
 
         // Debug
@@ -59,20 +72,36 @@ export async function callServerAPI(subURL, method = "GET", body = {},
         }
 
         // Debug
-        //console.log("[On API Request Successful] Result.", result);
+        //console.log("[On API Request Successful] Result (" + fullURL + ").", result);
 
         const data = result.data;
-        if (result.status === 200 || result.status === 201) {
-            if (onSuccessfulCallback)
-                onSuccessfulCallback(result.status === 201 ? null : data.client_data);
-        }
-        else {
+        if (data.error) {
+            const errorObj = data.error;
+
+            // Debug
+            //console.log("[On API Request Success w/ Error Messages] Error.", errorObj);
+
             if (onFailedCallback)
                 onFailedCallback({
-                    code: result.code,
-                    status: result.status,
-                    message: result && result.data && result.data.message ? result.data.message : "N/A"
+                    code: errorObj.code,
+                    status: errorObj.status,
+                    messages: networkErrorCodeMessages[errorObj.status] ?? "Undocumented Network Error."
                 });
+
+            if (errorObj.status === 401)
+                window.dispatchEvent(new CustomEvent(errorNoAuthEventName));
+            if (errorObj.status === 500)
+                window.dispatchEvent(new CustomEvent(errorServerEventName));
+        }
+        else {
+            const newAccessToken = data.access_token;
+            if (newAccessToken) {
+                //console.log("[On Received From Server] Update New Session Token 123.", newAccessToken);
+                updateSessionToken(newAccessToken);
+            }
+
+            if (onSuccessfulCallback)
+                onSuccessfulCallback(data.client_data ? data.client_data : null);
         }
 
         return data;
@@ -80,18 +109,17 @@ export async function callServerAPI(subURL, method = "GET", body = {},
     catch (error) {
         // Debug
         //console.log("[On API Request Failed] Error.", error);
+        //console.log("[On API Request Failed] URL.", fullURL);
 
-        // End Loader class at the end of an API.
-        //onAPIEnd();
+        onLoadingEnd("Global");
 
-        if (onFailedCallback)
-            onFailedCallback({
+        if (onErrorCallback)
+            onErrorCallback({
                 code: error.code,
-                status: error.request.status,
-                message: error && error.data && error.data.message ? error.data.message : "N/A"
+                status: error.request.status
             });
 
-        return error;
+        window.dispatchEvent(new CustomEvent(errorServerEventName));
     }
 }
 // ====================================================================
@@ -154,16 +182,7 @@ export async function callTPServerAPI(url, method = "GET", headers = {}, body = 
     }
     catch (error) {
         // Debug
-        //console.log("[On Third Party API Request Failed] Error.", error);
-
-        if (onFailedCallback)
-            onFailedCallback({
-                code: error.code,
-                status: error.request.status,
-                message: error && error.data && error.data.message ? error.data.message : "N/A"
-            });
-
-        return error;
+        console.log("[On Third Party API Request Failed] Error.", error);
     }
 }
 // ====================================================================

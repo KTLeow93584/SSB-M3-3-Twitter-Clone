@@ -1,16 +1,16 @@
 // =========================================
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
-import { updateComment } from '../feature/comments/commentsSlice.jsx';
+import { deleteComment } from '../../feature/comments/commentsSlice.jsx';
 
-import { onLoadingStart, onLoadingEnd } from '../data/loaders.js';
+import { onLoadingStart, onLoadingEnd } from '../../data/loaders.js';
 // =========================================
-export default function ModifyCommentModal({ show, comment, onCloseModalCallback, onAfterModifyCallback = null }) {
+export default function DeleteCommentModal({ show, post, comment, onCloseModalCallback, onAfterDeleteCallback = null }) {
     // =====================
     const [error, setError] = useState(null);
 
@@ -20,26 +20,20 @@ export default function ModifyCommentModal({ show, comment, onCloseModalCallback
             onCloseModalCallback();
     };
     // =====================
-    const [commentContent, setCommentContent] = useState(comment ? comment.comment_content : "");
-
-    useEffect(() => {
-        setCommentContent(comment ? comment.comment_content : "");
-    }, [comment]);
-    // =====================
     const dispatch = useDispatch();
 
-    const onModifyExistingComment = () => {
+    const onDeleteComment = () => {
         onLoadingStart("Global");
         setError(null);
 
-        dispatch(updateComment({ comment_id: comment.comment_id, comment_content: commentContent })).then(
+        dispatch(deleteComment({ post_id: post.post_id, comment_id: comment.comment_id })).then(
             (action) => {
                 onLoadingEnd("Global");
 
                 // On Promise Rejected/Failed, Error Exception.
                 if (action.error) {
                     // Debug
-                    //console.log("[On Post Modification Failed] Payload.", action.payload);
+                    //console.log("[On Post Deletion Failed] Payload.", action.payload);
 
                     setError({
                         name: action.payload.code,
@@ -49,12 +43,10 @@ export default function ModifyCommentModal({ show, comment, onCloseModalCallback
                 // On Promise Fulfilled
                 else {
                     // Debug
-                    //console.log("[On Post Modification Successful] Payload.", action.payload);
+                    //console.log("[On Post Deletion Successful] Payload.", action.payload);
 
-                    setCommentContent("");
-
-                    if (onAfterModifyCallback)
-                        onAfterModifyCallback();
+                    if (onAfterDeleteCallback)
+                        onAfterDeleteCallback({ comment_count: action.payload.client_data.post.comment_count });
 
                     if (onCloseModalCallback)
                         onCloseModalCallback();
@@ -67,31 +59,33 @@ export default function ModifyCommentModal({ show, comment, onCloseModalCallback
         <>
             <Modal show={show} onHide={onCloseModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Modify Tweet Comment</Modal.Title>
+                    <Modal.Title>Confirm Post Deletion?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="postContent">
-                            <Form.Control required
-                                placeholder="Leave your comment here?!"
+                            <Form.Control disabled
+                                placeholder="What is happening?!"
                                 as="textarea"
                                 rows={3}
-                                value={commentContent}
-                                onChange={(event) => setCommentContent(event.target.value)} />
+                                value={comment ? comment.comment_content : ""} />
                         </Form.Group>
                     </Form>
                     {/* Error Message Highlight */}
                     {
                         error ? (
                             <p className="fs-6 text-danger">
-                                Something went wrong with the comment modification process. (Error: {error.name}, Code: {error.code})
+                                Something went wrong with the comment deletion process. (Error: {error.name}, Code: {error.code})
                             </p>
                         ) : null
                     }
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" className="rounded-pill" onClick={onModifyExistingComment}>
-                        Re-Tweet
+                    <Button variant="primary" className="rounded-pill" onClick={onDeleteComment}>
+                        Yes
+                    </Button>
+                    <Button variant="primary" className="rounded-pill" onClick={onCloseModal}>
+                        No
                     </Button>
                 </Modal.Footer>
             </Modal>
